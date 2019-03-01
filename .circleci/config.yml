@@ -7,7 +7,7 @@ jobs:
     steps:
       - checkout
       - run: cpanm --installdeps . --for
-      - run: prove -rl t/
+      - run: perl Build.PL && cover -test
   perl-5.28:
     <<: *test
     docker:

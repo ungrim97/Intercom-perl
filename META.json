@@ -52,6 +52,8 @@
       },
       "test" : {
          "requires" : {
+            "Devel::Cover" : "0",
+            "Devel::Cover::Report::Codecov" : "0",
             "Log::Any::Adapter::TAP" : "0",
             "Test::MockObject" : "0",
             "Test::Most" : "0",
