@@ -9,7 +9,7 @@ jobs:
       - run: cpanm --installdeps .
       - run: perl Build.PL && cover -test
       - store_artifacts:
-        path: /root/.cpanm/
+          path: /root/.cpanm/
   perl-5.28:
     <<: *test
     docker:
