@@ -2,5 +2,6 @@ Revision history for Perl extension Intercom-Perl
 
 {{$NEXT}}
 
+    - Add User Resource Handler
     - original version
 
