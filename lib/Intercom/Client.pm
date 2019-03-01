@@ -1,4 +1,4 @@
-package Intercom::Perl;
+package Intercom::Client;
 use 5.008001;
 use strict;
 use warnings;
@@ -45,7 +45,7 @@ __END__
 
 =head1 NAME
 
-Intercom::Client
+Intercom::Client - Perl SDK for the Intercom REST API
 
 =head1 SYNOPSIS
 

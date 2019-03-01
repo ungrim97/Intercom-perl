@@ -1,5 +1,5 @@
 {
-   "abstract" : "It's new $module",
+   "abstract" : "Perl SDK for the Intercom REST API",
    "author" : [
       "Mike Eve <ungrim97@gmail.com>"
    ],
@@ -42,12 +42,19 @@
       },
       "runtime" : {
          "requires" : {
+            "LWP::UserAgent" : "0",
+            "Log::Any" : "0",
+            "Moo" : "0",
+            "URI" : "0",
             "perl" : "5.008001"
          }
       },
       "test" : {
          "requires" : {
-            "Test::More" : "0.98"
+            "Log::Any::Adapter::TAP" : "0",
+            "Test::MockObject" : "0",
+            "Test::Most" : "0",
+            "Try::Tiny" : "0"
          }
       }
    },
