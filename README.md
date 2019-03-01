@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/ungrim97/intercom-perl.svg?branch=master)](https://travis-ci.com/ungrim97/intercom-perl)
+[![Build Status](https://circleci.com/gh/ungrim97/intercom-perl.svg)](https://circleci.com/gh/ungrim97/intercom-perl)
 # NAME
 
 Intercom::Client - Perl SDK for the Intercom REST API
