@@ -1,0 +1,10 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: perl/latest
+    working_directory: ~/intercom-perl
+    steps:
+      - checkout
+      - run: cpanm --installdeps . --for
+      - run: prove -rl t/
