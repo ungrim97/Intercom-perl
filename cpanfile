@@ -1,4 +1,5 @@
 requires 'perl', '5.008001';
+requires 'JSON';
 requires 'Log::Any';
 requires 'LWP::UserAgent';
 requires 'Moo';
@@ -10,4 +11,3 @@ on 'test' => sub {
     requires 'Test::MockObject';
     requires 'Try::Tiny';
 };
-
