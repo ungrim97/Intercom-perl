@@ -1,6 +1,13 @@
 requires 'perl', '5.008001';
+requires 'Log::Any';
+requires 'LWP::UserAgent';
+requires 'Moo';
+requires 'URI';
 
 on 'test' => sub {
-    requires 'Test::More', '0.98';
+    requires 'Log::Any::Adapter::TAP';
+    requires 'Test::Most';
+    requires 'Test::MockObject';
+    requires 'Try::Tiny';
 };
 
