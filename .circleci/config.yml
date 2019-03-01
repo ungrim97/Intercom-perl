@@ -6,7 +6,7 @@ jobs:
     working_directory: ~/intercom-perl
     steps:
       - checkout
-      - run: cpanm --installdeps . --for
+      - run: cpanm --installdeps .
       - run: perl Build.PL && cover -test
   perl-5.28:
     <<: *test
