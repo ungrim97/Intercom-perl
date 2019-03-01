@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: perl/latest
+      - image: perl:latest
     working_directory: ~/intercom-perl
     steps:
       - checkout
