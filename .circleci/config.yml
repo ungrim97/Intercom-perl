@@ -6,10 +6,13 @@ jobs:
     working_directory: ~/intercom-perl
     steps:
       - checkout
+      - run: cpanm Net::SSLeay
       - run: cpanm --installdeps .
-      - run: perl Build.PL && cover -test
+      - run: perl Build.PL
+      - run: ./Build build
+      - run: cover -test -report codecov
       - store_artifacts:
-          path: /root/.cpanm/
+        path: /root/.cpanm/build.log
   perl-5.28:
     <<: *test
     docker:
