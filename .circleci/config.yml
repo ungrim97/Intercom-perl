@@ -7,6 +7,8 @@ jobs:
     steps:
       - checkout
       - run: cpanm Net::SSLeay
+      - run: cpanm Devel::Cover
+      - run: cpanm Devel::Cover::Report::Codecov
       - run: cpanm --installdeps .
       - run:
           command: perl Build.PL && ./Build build
@@ -22,7 +24,6 @@ jobs:
     working_directory: ~/intercom-perl
     steps:
       - checkout
-      - run: cpanm Net::SSLeay
       - run: cpanm --installdeps .
       - run:
           command: perl Build.PL && ./Build build
@@ -38,7 +39,6 @@ jobs:
     working_directory: ~/intercom-perl
     steps:
       - checkout
-      - run: cpanm Net::SSLeay
       - run: cpanm --installdeps .
       - run:
           command: perl Build.PL && ./Build build
@@ -54,7 +54,6 @@ jobs:
     working_directory: ~/intercom-perl
     steps:
       - checkout
-      - run: cpanm Net::SSLeay
       - run: cpanm --installdeps .
       - run:
           command: perl Build.PL && ./Build build
