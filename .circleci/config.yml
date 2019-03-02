@@ -1,44 +1,69 @@
-common_build_steps: &common_build_steps
-  - checkout
-  - run: cpanm Net::SSLeay
-  - run: cpanm --installdeps .
-  - run:
-      command: perl Build.PL && ./Build build
-      name: build app
-  - store_artifacts:
-      path: /root/.cpanm/build.log
-
-workflow_defaults: &workflow_defaults
-  working_directory: ~/intercom-perl
-  steps:
-    <<: *common_build_steps
-    - run:
-        command: ./Build test
-        name: run tests
-
 version: 2
 jobs:
   perl-latest:
-    <<: *workflow_defaults
+    working_directory: ~/intercom-perl
     docker:
       - image: perl:latest
     steps:
-      <<: *common_build_steps
+      - checkout
+      - run: cpanm Net::SSLeay
+      - run: cpanm --installdeps .
+      - run:
+          command: perl Build.PL && ./Build build
+          name: build app
+      - store_artifacts:
+          path: /root/.cpanm/build.log
       - run:
           command: cover -test -report codecov
           name: run tests
   perl-5.28:
-    <<: *workflow_defaults
     docker:
       - image: perl:5.28
+    working_directory: ~/intercom-perl
+    steps:
+      - checkout
+      - run: cpanm Net::SSLeay
+      - run: cpanm --installdeps .
+      - run:
+          command: perl Build.PL && ./Build build
+          name: build app
+      - run:
+          command: ./Build test
+          name: run tests
+      - store_artifacts:
+          path: /root/.cpanm/build.log
   perl-5.26:
-    <<: *workflow_defaults
     docker:
       - image: perl:5.26
+    working_directory: ~/intercom-perl
+    steps:
+      - checkout
+      - run: cpanm Net::SSLeay
+      - run: cpanm --installdeps .
+      - run:
+          command: perl Build.PL && ./Build build
+          name: build app
+      - run:
+          command: ./Build test
+          name: run tests
+      - store_artifacts:
+          path: /root/.cpanm/build.log
   perl-5.24:
-    <<: *workflow_defaults
     docker:
       - image: perl:5.24
+    working_directory: ~/intercom-perl
+    steps:
+      - checkout
+      - run: cpanm Net::SSLeay
+      - run: cpanm --installdeps .
+      - run:
+          command: perl Build.PL && ./Build build
+          name: build app
+      - run:
+          command: ./Build test
+          name: run tests
+      - store_artifacts:
+          path: /root/.cpanm/build.log
 workflows:
   version: 2
   test:
