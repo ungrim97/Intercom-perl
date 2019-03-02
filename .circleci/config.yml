@@ -8,11 +8,14 @@ jobs:
       - checkout
       - run: cpanm Net::SSLeay
       - run: cpanm --installdeps .
-      - run: perl Build.PL
-      - run: ./Build build
-      - run: cover -test -report codecov
+      - run:
+          command: perl Build.PL && ./Build build
+          name: build app
+      - run:
+          command: cover -test -report codecov
+          name: run tests
       - store_artifacts:
-        path: /root/.cpanm/build.log
+          path: /root/.cpanm/build.log
   perl-5.28:
     <<: *test
     docker:
