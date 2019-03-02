@@ -1,31 +1,42 @@
+common_build_steps: &common_build_steps
+  - checkout
+  - run: cpanm Net::SSLeay
+  - run: cpanm --installdeps .
+  - run:
+      command: perl Build.PL && ./Build build
+      name: build app
+  - store_artifacts:
+      path: /root/.cpanm/build.log
+
+workflow_defaults: &workflow_defaults
+  working_directory: ~/intercom-perl
+  steps:
+    <<: *common_build_steps
+    - run:
+        command: ./Build test
+        name: run tests
+
 version: 2
 jobs:
-  perl-latest: &test
+  perl-latest:
+    <<: *workflow_defaults
     docker:
       - image: perl:latest
-    working_directory: ~/intercom-perl
     steps:
-      - checkout
-      - run: cpanm Net::SSLeay
-      - run: cpanm --installdeps .
-      - run:
-          command: perl Build.PL && ./Build build
-          name: build app
+      <<: *common_build_steps
       - run:
           command: cover -test -report codecov
           name: run tests
-      - store_artifacts:
-          path: /root/.cpanm/build.log
   perl-5.28:
-    <<: *test
+    <<: *workflow_defaults
     docker:
       - image: perl:5.28
   perl-5.26:
-    <<: *test
+    <<: *workflow_defaults
     docker:
       - image: perl:5.26
   perl-5.24:
-    <<: *test
+    <<: *workflow_defaults
     docker:
       - image: perl:5.24
 workflows:
