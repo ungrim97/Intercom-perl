@@ -2,9 +2,11 @@ package Intercom::Client::RequestHandler;
 
 use Moo;
 
+use Carp qw/confess/;
 use JSON qw/encode_json decode_json/;
-use Log::Any qw/$log/;
 use LWP::UserAgent;
+use Module::Runtime qw/use_module/;
+use Try::Tiny;
 use URI;
 
 has base_url   => ( is => 'ro', required => 1 );
@@ -45,32 +47,17 @@ sub _send_request {
     );
 }
 
-sub _handle_response {
-    my ($self, $response) = @_;
-
-    my $response_data = $self->_deserialise_body($response->content);
-    if ($response->is_success) {
-        $log->tracef(
-            "[%s] - %s",
-            $response->status_line,
-            $response->decoded_content
-        );
-        return ($response_data);
-    }
-
-    $log->tracef(
-        "[%s] - %s",
-        $response->status_line,
-        $response->decoded_content
-    );
-    return (undef, $response_data // '');
-}
-
 sub _build_request {
     my ($self, $method, $uri, $body) = @_;
 
     my $url = $self->base_url->clone();
-    $url->path($uri);
+    if ($uri) {
+        if ($uri->scheme) {
+            $url = $uri;
+        } else {
+            $url->path($uri);
+        }
+    }
 
     my $request = HTTP::Request->new(
         $method,
@@ -85,7 +72,6 @@ sub _build_request {
 sub _deserialise_body {
     my ($self, $json_body) = @_;
 
-    $log->infof("Deserialising json: [%s]", $json_body);
     if ($json_body) {
         return decode_json($json_body);
     }
@@ -111,6 +97,112 @@ sub _build_headers {
         'Content-type'  => 'application/json',
         'Authorization' => 'Bearer '.$self->auth_token,
     ];
+}
+
+sub _handle_response {
+    my ($self, $response) = @_;
+
+    my $response_data = $self->_deserialise_body($response->content);
+
+    return unless $response_data;
+
+    return $self->_build_resources($response_data);
+}
+
+# Run over the data and construct any sub models that were returned in the primary
+# response
+sub _build_resources {
+    my ($self, $resource_data) = @_;
+
+    # Empty resource
+    if (! defined $resource_data) {
+        return;
+    }
+
+    # We just have a string value as our resource
+    if (!ref $resource_data){
+        return $resource_data;
+    }
+
+    # List of sub resources (user.list etc)
+    if (ref $resource_data eq 'ARRAY') {
+        my $resources = [];
+        for my $sub_resource_data (@{$resource_data}) {
+            push @{$resources}, $self->_build_resources($sub_resource_data);
+        }
+
+        return $resources;
+    }
+
+    if (ref $resource_data eq 'HASH') {
+        # Main resource data
+        my $model_data = {};
+        for my $attribute (keys %$resource_data) {
+            # Pagination objects are special
+            if ($attribute eq 'pages') {
+                $self->_build_paginator($resource_data->{$attribute});
+            } else {
+                $model_data->{$attribute} = $self->_build_resources($resource_data->{$attribute});
+            }
+        }
+
+        # typed resource
+        if ($resource_data->{type}) {
+            my $model = $self->_type_to_model($resource_data->{type});
+            return $model->new($model_data);
+        }
+
+        # Untyped data
+        return $model_data;
+    }
+
+    # If here we probably have a JSON::Boolean obj, just return it
+    return $resource_data;
+}
+
+sub _build_paginator {
+    my ($self, $page_data) = @_;
+
+    my $class_data = $page_data;
+    $class_data->{request_handler} = $self;
+
+    for my $attribute (qw/next last prev first/) {
+        if ($class_data->{$attribute}) {
+            $class_data->{$attribute} = URI->new($class_data->{$attribute});
+        }
+    }
+
+    my $paginator_class = $self->_type_to_model('page');
+    return $paginator_class->new($class_data);
+}
+
+{
+    my $type_map = {
+        'error.list'          => 'ErrorList',
+        'admin'               => 'Admin',
+        'user'                => 'User',
+        'avatar'              => 'Avatar',
+        'location_data'       => 'LocationData',
+        'social_profile'      => 'SocialProfile',
+        'social_profile.list' => 'SocialProfileList',
+        'company'             => 'Company',
+        'company.list'        => 'CompanyList',
+        'segment'             => 'Segment',
+        'segment.list'        => 'SegmentList',
+        'tag.list'            => 'TagList',
+        'tag'                 => 'Tag',
+        'page'                => 'Page',
+    };
+
+    sub _type_to_model {
+        my ($self, $type) = @_;
+
+        return try {
+            return use_module('Intercom::Model::'.$type_map->{$type});
+        } catch {
+            confess "Unable to find model for [$type]"
+        };
+    }
 }
 
 1;
