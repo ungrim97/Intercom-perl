@@ -1,6 +1,7 @@
 package Intercom::Client::User;
 
 use Moo;
+use URI;
 
 # Request handler for the client. This differes from the
 # other SDK implementations to avoid circular references
@@ -9,7 +10,7 @@ has request_handler => (is => 'ro', required => 1);
 sub create {
     my ($self, $options) = @_;
 
-    return $self->request_handler->post('users', $options);
+    return $self->request_handler->post(URI->new('/users'), $options);
 }
 
 sub update {
@@ -27,7 +28,7 @@ sub get {
 sub scroll {
     my ($self, $options) = @_;
 
-    return $self->request_handler->get('users/scroll', $options);
+    return $self->request_handler->get(URI->new('/users/scroll'), $options);
 }
 
 sub archive {
@@ -39,11 +40,12 @@ sub archive {
 sub permanently_delete {
     my ($self, $id, $options) = @_;
 
-    return $self->request_handler->post('user_delete_requests', $options);
+    return $self->request_handler->post(URI->new('/user_delete_requests'), $options);
 }
 
 sub _user_path {
-    return 'users/'.shift;
+    my ($self, $id) = @_;
+    return URI->new("/users/$id");
 }
 
 1;

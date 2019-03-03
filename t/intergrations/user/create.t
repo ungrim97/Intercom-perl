@@ -1,4 +1,3 @@
-use Log::Any::Adapter qw/TAP/;
 use JSON;
 use Test::Most tests => 3;
 use Test::MockObject;
@@ -15,18 +14,15 @@ subtest 'Invalid token' => sub {
             '{"type":"error.list","request_id":"0008pcfj9dh1eig57qv0","errors":[{"code":"token_unauthorized","message":"Unauthorized"}]}');
     });
 
-    my ($user_data, $error) = $client->users->create({email => 'test@test.com'});
+    my $model = $client->users->create({email => 'test@test.com'});
 
+    is($model->type, 'error.list', 'ErrorList model returned');
     cmp_deeply(
-        $error,
-        {
-            type => 'error.list',
-            request_id => '0008pcfj9dh1eig57qv0',
-            errors => [{
-                code => 'token_unauthorized',
-                message => 'Unauthorized'
-            }]
-        },
+        $model->errors,
+        [{
+            code => 'token_unauthorized',
+            message => 'Unauthorized'
+        }],
         'Error returned correctly'
     );
 };
@@ -36,24 +32,61 @@ subtest 'Network issue' => sub {
         return HTTP::Response->new(502);
     });
 
-    my ($user_data, $error) = $client->users->create({email => 'test@test.com'});
+    my $error = $client->users->create({email => 'test@test.com'});
 
-    cmp_deeply($error, '', 'No error');
+    is($error, undef, 'No error');
 };
 
 subtest 'Successful request' => sub {
+    my $user_data = _user_data();
+
     $client->ua->mock(request => sub {
         return HTTP::Response->new(
             '200',
             'OK',
             [ 'Content-Type' => 'application/json' ],
-            JSON::encode_json(_user_data())
+            JSON::encode_json($user_data)
         );
     });
 
-    my $user_data = $client->users->create({email => 'test@test.com'});
+    my $model = $client->users->create({email => 'test@test.com'});
 
-    cmp_deeply($user_data, _user_data(), 'Correctly returned user data');
+    is($model->type, 'user', 'User model returned');
+
+    # Basic user model data
+    is($model->id, $user_data->{'id'}, 'id has correct value');
+    is($model->user_id, $user_data->{'user_id'}, 'user_id has correct value');
+    is($model->email, $user_data->{'email'}, 'email has correct value');
+    is($model->phone, $user_data->{'phone'}, 'phone has correct value');
+    is($model->name, $user_data->{'name'}, 'name has correct value');
+    is($model->updated_at, $user_data->{'updated_at'}, 'updated_at has correct value');
+    is($model->last_seen_ip, $user_data->{'last_seen_ip'}, 'last_seen_ip has correct value');
+    is($model->unsubscribed_from_emails, $user_data->{'unsubscribed_from_emails'}, 'unsubscribed_from_emails has correct value');
+    is($model->last_request_at, $user_data->{'last_request_at'}, 'last_request_at has correct value');
+    is($model->signed_up_at, $user_data->{'signed_up_at'}, 'signed_up_at has correct value');
+    is($model->created_at, $user_data->{'created_at'}, 'created_at has correct value');
+    is($model->session_count, $user_data->{'session_count'}, 'session_count has correct value');
+    is($model->user_agent_data, $user_data->{'user_agent_data'}, 'user_agent_data has correct value');
+    is($model->pseudonym, $user_data->{'pseudonym'}, 'pseudonym has correct value');
+    is($model->anonymous, $user_data->{'anonymous'}, 'anonymous has correct value');
+    is($model->referrer, $user_data->{'referrer'}, 'referrer has correct value');
+    is($model->utm_campaign, $user_data->{'utm_campaign'}, 'utm_campaign has correct value');
+    is($model->utm_content, $user_data->{'utm_content'}, 'utm_content has correct value');
+    is($model->utm_medium, $user_data->{'utm_medium'}, 'utm_medium has correct value');
+    is($model->utm_source, $user_data->{'utm_source'}, 'utm_source has correct value');
+    is($model->utm_term, $user_data->{'utm_term'}, 'utm_term has correct value');
+
+    # User custom attributes
+    cmp_deeply($model->custom_attributes, _user_data()->{custom_attributes}, 'custom_attributes has the correct value');
+
+    # Avatar
+    is($model->avatar->type, 'avatar', 'User has Avatar resource');
+    is($model->avatar->image_url, $user_data->{avatar}{'image_url'}, 'Avatar->image_url has correct value');
+
+    # Companies
+    is($model->companies->type, 'company.list', 'User has companies list resource');
+    is($model->companies->companies->[0]->type, 'company', 'CompanyList has a company resource');
+    is($model->companies->companies->[0]->id, $user_data->{companies}{companies}[0]{'id'}, 'Company->id has correct value');
 };
 
 sub _user_data {
@@ -101,30 +134,34 @@ sub _user_data {
           region_name    => 'Dublin',
           timezone       => 'Europe/Dublin'
       },
-      social_profiles => {
+      social_profiles   => {
         type            => 'social_profile.list',
         social_profiles => [{
-            name     => 'twitter',
-           id        => '1235d3213',
-            username => 'th1sland',
-            url      => 'http://twitter.com/th1sland'
+            type        => 'social_profile',
+            name        => 'twitter',
+           id           => '1235d3213',
+            username    => 'th1sland',
+            url         => 'http://twitter.com/th1sland'
         }]
       },
       companies   => {
         type      => 'company.list',
         companies => [{
+            type => 'company',
             id  => '530370b477ad7120001e'
         }]
       },
       segments => {
         type     => 'segment.list',
         segments => [{
+            type => 'segment',
             id => '5310d8e7598c9a0b24000002'
         }]
       },
       tags => {
         type => 'tag.list',
         tags => [{
+            type => 'tag',
             id => '202'
         }]
       }
