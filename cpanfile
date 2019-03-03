@@ -6,7 +6,9 @@ requires 'Moo';
 requires 'URI';
 
 on 'test' => sub {
+    requires 'Test::Mock::LWP::Dispatch';
     requires 'Test::Most';
     requires 'Test::MockObject';
+    requires 'Test::MockObject::Extends';
     requires 'Try::Tiny';
 };

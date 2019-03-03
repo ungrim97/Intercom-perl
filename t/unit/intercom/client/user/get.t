@@ -1,29 +1,81 @@
-use Test::Most tests => 1;
+use Test::Most tests => 3;
 use Test::MockObject;
+use Test::MockObject::Extends;
 use HTTP::Response;
 
 use Intercom::Client::User;
 
-subtest 'request successful' => sub {
-    plan tests => 1;
+subtest 'By ID' => sub {
+    plan tests => 3;
 
     my $request_handler = Test::MockObject->new();
-    $request_handler->mock('get', sub { return _mock_response(); });
+    $request_handler->mock('get', sub {
+        my ($self, $uri) = @_;
 
-    my $users = Intercom::Client::User->new(request_handler => $request_handler);
+        is($uri, '/users/1', 'value of _user_path correctly passed to RH->get()');
+        return 'test';
+    });
 
-    cmp_deeply($users->get({email => 'test@test.com'}), _mock_response(), 'Correct response returned');
+    my $user = Test::MockObject::Extends->new(
+        Intercom::Client::User->new(request_handler => $request_handler)
+    );
+    $user->mock(_user_path => sub {
+        my ($self, $params) = @_;
+
+        cmp_deeply($params, {id => 1}, 'Passed ID through to _user_path');
+
+        return '/users/1';
+    });
+
+    is($user->get({id => 1}), 'test', 'Correct response returned');
 };
 
-sub _mock_response {
-    return {
-		"type"      => "user",
-		"id"        => "5714dd359a3fd47136000001",
-		"user_id"   => "25",
-		"anonymous" => 0,
-		"email"     => "wash\@serenity.io",
-		"phone"     => "555671243",
-		"name"      => "Hoban Washburne",
-		"pseudonym" => undef,
-    };
-}
+subtest 'By email' => sub {
+    plan tests => 3;
+
+    my $request_handler = Test::MockObject->new();
+    $request_handler->mock('get', sub {
+        my ($self, $uri) = @_;
+
+        is($uri, '/users?email=test%40test.com', 'value of _user_path correctly passed to RH->get()');
+        return 'test';
+    });
+
+    my $user = Test::MockObject::Extends->new(
+        Intercom::Client::User->new(request_handler => $request_handler)
+    );
+    $user->mock(_user_path => sub {
+        my ($self, $params) = @_;
+
+        cmp_deeply($params, {email => 'test@test.com'}, 'Passed email through to _user_path');
+
+        return '/users?email=test%40test.com';
+    });
+
+    is($user->get({email => 'test@test.com'}), 'test', 'Correct response returned');
+};
+
+subtest 'By user_id' => sub {
+    plan tests => 3;
+
+    my $request_handler = Test::MockObject->new();
+    $request_handler->mock('get', sub {
+        my ($self, $uri) = @_;
+
+        is($uri, '/users?user_id=2', 'value of _user_path correctly passed to RH->get()');
+        return 'test';
+    });
+
+    my $user = Test::MockObject::Extends->new(
+        Intercom::Client::User->new(request_handler => $request_handler)
+    );
+    $user->mock(_user_path => sub {
+        my ($self, $params) = @_;
+
+        cmp_deeply($params, {user_id => '2'}, 'Passed email through to _user_path');
+
+        return '/users?user_id=2';
+    });
+
+    is($user->get({user_id => 2}), 'test', 'Correct response returned');
+};

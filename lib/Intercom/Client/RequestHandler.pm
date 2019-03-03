@@ -55,7 +55,7 @@ sub _build_request {
         if ($uri->scheme) {
             $url = $uri;
         } else {
-            $url->path($uri);
+            $url->path_query($uri);
         }
     }
 
