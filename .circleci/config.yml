@@ -1,27 +1,68 @@
 version: 2
 jobs:
-  perl-latest: &test
+  perl-latest:
+    working_directory: ~/intercom-perl
     docker:
       - image: perl:latest
+    steps:
+      - checkout
+      - run: cpanm Net::SSLeay
+      - run: cpanm Devel::Cover
+      - run: cpanm Devel::Cover::Report::Codecov
+      - run: cpanm --installdeps .
+      - run:
+          command: perl Build.PL && ./Build build
+          name: build app
+      - store_artifacts:
+          path: /root/.cpanm/build.log
+      - run:
+          command: cover -test -report codecov
+          name: run tests
+  perl-5.28:
+    docker:
+      - image: perl:5.28
     working_directory: ~/intercom-perl
     steps:
       - checkout
       - run: cpanm --installdeps .
-      - run: perl Build.PL && cover -test
+      - run:
+          command: perl Build.PL && ./Build build
+          name: build app
+      - run:
+          command: ./Build test
+          name: run tests
       - store_artifacts:
-          path: /root/.cpanm/
-  perl-5.28:
-    <<: *test
-    docker:
-      - image: perl:5.28
+          path: /root/.cpanm/build.log
   perl-5.26:
-    <<: *test
     docker:
       - image: perl:5.26
+    working_directory: ~/intercom-perl
+    steps:
+      - checkout
+      - run: cpanm --installdeps .
+      - run:
+          command: perl Build.PL && ./Build build
+          name: build app
+      - run:
+          command: ./Build test
+          name: run tests
+      - store_artifacts:
+          path: /root/.cpanm/build.log
   perl-5.24:
-    <<: *test
     docker:
       - image: perl:5.24
+    working_directory: ~/intercom-perl
+    steps:
+      - checkout
+      - run: cpanm --installdeps .
+      - run:
+          command: perl Build.PL && ./Build build
+          name: build app
+      - run:
+          command: ./Build test
+          name: run tests
+      - store_artifacts:
+          path: /root/.cpanm/build.log
 workflows:
   version: 2
   test:
