@@ -1,29 +1,69 @@
-use Test::Most tests => 1;
+use Test::Most tests => 2;
 use Test::MockObject;
-use HTTP::Response;
+use Test::MockObject::Extends;
 
 use Intercom::Client::User;
 
-subtest 'request successful' => sub {
+subtest 'no identification param' => sub {
     plan tests => 1;
 
-    my $request_handler = Test::MockObject->new();
-    $request_handler->mock('post', sub { return _mock_response(); });
+    my $users = Test::MockObject::Extends->new(
+        Intercom::Client::User->new(request_handler => Test::MockObject->new())
+    );
+    $users->mock(create => sub {
+        fail('Create called');
+    });
 
-    my $users = Intercom::Client::User->new(request_handler => $request_handler);
-
-    cmp_deeply($users->update({email => 'test@test.com'}), _mock_response(), 'Correct response returned');
+    my $error = $users->update({});
+    is($error->errors->[0]{code}, 'parameter_not_found', 'Missing param error thrown');
 };
 
-sub _mock_response {
-    return {
-		"type"      => "user",
-		"id"        => "5714dd359a3fd47136000001",
-		"user_id"   => "25",
-		"anonymous" => 0,
-		"email"     => "wash\@serenity.io",
-		"phone"     => "555671243",
-		"name"      => "Hoban Washburne",
-		"pseudonym" => undef,
+subtest 'request successful' => sub {
+    plan tests => 3;
+
+    my $users = Test::MockObject::Extends->new(
+        Intercom::Client::User->new(request_handler => Test::MockObject->new())
+    );
+
+    subtest 'with email' => sub {
+        plan tests => 2;
+
+        $users->mock(create => sub {
+            my ($self, $user_data) = @_;
+
+            cmp_deeply($user_data, {email => 'test@test.com'}, 'User data passed through to User->create()');
+
+            return 'test';
+        });
+
+        is($users->update({email => 'test@test.com'}), 'test', 'Correct response returned using email identifier');
     };
-}
+
+    subtest 'with user_id' => sub {
+        plan tests => 2;
+
+        $users->mock(create => sub {
+            my ($self, $user_data) = @_;
+
+            cmp_deeply($user_data, {user_id => 25}, 'User data passed through to User->create()');
+
+            return 'test';
+        });
+
+        is($users->update({user_id => 25}), 'test', 'Correct response returned using user_id identifier');
+    };
+
+    subtest 'with id' => sub {
+        plan tests => 2;
+
+        $users->mock(create => sub {
+            my ($self, $user_data) = @_;
+
+            cmp_deeply($user_data, {id => 1}, 'User data passed through to User->create()');
+
+            return 'test';
+        });
+
+        is($users->update({id => 1}), 'test', 'Correct response returned using id identifier');
+    };
+};

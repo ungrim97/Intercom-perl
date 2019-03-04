@@ -2,6 +2,7 @@ package Intercom::Client::User;
 
 use Moo;
 use URI;
+use Intercom::Model::ErrorList;
 
 # Request handler for the client. This differes from the
 # other SDK implementations to avoid circular references
@@ -44,10 +45,38 @@ sub create {
     return $self->request_handler->post(URI->new('/users'), $user_data);
 }
 
-sub update {
-    my ($self) = @_;
+=head2 update (HasRef $user_data) -> Intercom::Model::User|Intercom::Model::ErrorList
 
-    return $self->create(@_);
+    my $user = $client->users->update({
+        email => 'test@test.com',
+        companies => [{
+            company_id => 366,
+            name => 'test'
+        }];
+    });
+
+Update an existing user with the provided $user_data. User will be matched by the value of the 'id', 'email'
+or 'user_id' fields in the data
+
+Will return a new instance of a Intercom::Model::User or an instance of an Intercom::Model::ErrorList
+
+SEE ALSO:
+    L<Update Users|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-user>
+
+
+=cut
+
+sub update {
+    my ($self, $user_data) = @_;
+
+    unless ($user_data->{id} || $user_data->{email} || $user_data->{user_id}) {
+        return Intercom::Model::ErrorList->new(errors => [{
+            code => 'parameter_not_found',
+            message => 'Update requires one of `id`, `email` or `user_id`'
+        }]);
+    }
+
+    return $self->create($user_data);
 }
 
 sub list {
