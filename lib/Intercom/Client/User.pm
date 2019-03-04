@@ -186,10 +186,26 @@ sub archive {
     return $self->request_handler->delete($self->_user_path($params));
 }
 
-sub permanently_delete {
-    my ($self, $id, $options) = @_;
+=head1 permanently_delete (Str $id) -> HashRef|Intercom::Model::ErrorList
 
-    return $self->request_handler->post(URI->new('/user_delete_requests'), $options);
+    my $return = $client->users->permanently_delete(1);
+
+Permanently remove a user as identified by thier Intercom user id ($id).
+
+Returns either a hashref containing a single id key whose value is the
+id of the deleted user.
+
+SEE ALSO: L<Delete a user|https://developers.intercom.com/intercom-api-reference/v1.1/reference#delete-users>
+
+=cut
+
+sub permanently_delete {
+    my ($self, $id) = @_;
+
+    return $self->request_handler->post(
+        URI->new('/user_delete_requests'),
+        {intercom_user_id => $id}
+    );
 }
 
 sub _user_path {

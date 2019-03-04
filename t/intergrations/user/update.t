@@ -35,7 +35,7 @@ subtest 'update user' => sub {
     plan tests => 4;
 
     my $user_data = user_data();
-    my $create_data = {
+    my $update_data = {
         user_id                  => '25',
         email                    => 'wash@serenity.io',
         phone                    => '+1123456789',
@@ -61,7 +61,7 @@ subtest 'update user' => sub {
             my ($request) = @_;
 
             is($request->method, 'POST', 'Request has correct HTTP Verb');
-            cmp_deeply(JSON::decode_json($request->content()), $create_data, 'Request has correct data');
+            cmp_deeply(JSON::decode_json($request->content()), $update_data, 'Request has correct data');
 
             return like($request->uri(), qr#/users$#, 'Request has correct URI');
         },
@@ -78,7 +78,7 @@ subtest 'update user' => sub {
         ua         => $mock_ua
     });
 
-    my $user = $client->users->create({
+    my $user = $client->users->update({
         user_id                  => '25',
         email                    => 'wash@serenity.io',
         phone                    => '+1123456789',

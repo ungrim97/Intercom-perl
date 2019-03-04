@@ -11,7 +11,7 @@ subtest 'By ID' => sub {
     $request_handler->mock('delete', sub {
         my ($self, $uri) = @_;
 
-        is($uri, '/users/1', 'value of _user_path correctly passed to RH->archive()');
+        is($uri, '/users/1', 'value of _user_path correctly passed to RH->delete()');
         return 'test';
     });
 
@@ -36,7 +36,7 @@ subtest 'By email' => sub {
     $request_handler->mock('delete', sub {
         my ($self, $uri) = @_;
 
-        is($uri, '/users?email=test%40test.com', 'value of _user_path correctly passed to RH->archive()');
+        is($uri, '/users?email=test%40test.com', 'value of _user_path correctly passed to RH->delete()');
         return 'test';
     });
 
@@ -61,7 +61,7 @@ subtest 'By user_id' => sub {
     $request_handler->mock('delete', sub {
         my ($self, $uri) = @_;
 
-        is($uri, '/users?user_id=2', 'value of _user_path correctly passed to RH->archive()');
+        is($uri, '/users?user_id=2', 'value of _user_path correctly passed to RH->delete()');
         return 'test';
     });
 
