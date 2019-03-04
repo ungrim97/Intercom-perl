@@ -6,10 +6,10 @@ jobs:
       - image: perl:latest
     steps:
       - checkout
-      - run: cpanm Net::SSLeay
-      - run: cpanm Devel::Cover
-      - run: cpanm Devel::Cover::Report::Codecov
-      - run: cpanm --installdeps .
+      - run: cpanm -n Net::SSLeay
+      - run: cpanm -n Devel::Cover
+      - run: cpanm -n Devel::Cover::Report::Codecov
+      - run: cpanm --installdeps --notest .
       - store_artifacts:
           path: /root/.cpanm/build.log
       - run:
@@ -24,7 +24,7 @@ jobs:
     working_directory: ~/intercom-perl
     steps:
       - checkout
-      - run: cpanm --installdeps .
+      - run: cpanm --installdeps --notest .
       - run:
           command: perl Build.PL && ./Build build
           name: build app
@@ -39,7 +39,7 @@ jobs:
     working_directory: ~/intercom-perl
     steps:
       - checkout
-      - run: cpanm --installdeps .
+      - run: cpanm --installdeps --notest .
       - run:
           command: perl Build.PL && ./Build build
           name: build app
@@ -54,7 +54,7 @@ jobs:
     working_directory: ~/intercom-perl
     steps:
       - checkout
-      - run: cpanm --installdeps .
+      - run: cpanm --installdeps --notest .
       - run:
           command: perl Build.PL && ./Build build
           name: build app
