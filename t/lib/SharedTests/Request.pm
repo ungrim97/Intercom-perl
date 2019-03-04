@@ -64,7 +64,7 @@ sub auth_failure {
         });
 
         my $client = Intercom::Client->new({
-            auth_token => 'token',
+            access_token => 'token',
             ua         => $mock_ua,
         });
 
@@ -113,7 +113,7 @@ sub connection_failure {
         });
 
         my $client = Intercom::Client->new({
-            auth_token => 'token',
+            access_token => 'token',
             ua         => $mock_ua,
         });
 

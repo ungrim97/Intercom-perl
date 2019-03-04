@@ -4,7 +4,7 @@ use Try::Tiny;
 
 use Intercom::Client::RequestHandler;
 
-subtest 'require auth_token' => sub {
+subtest 'require access_token' => sub {
     plan tests => 2;
 
     my $params = {
@@ -19,7 +19,7 @@ subtest 'require auth_token' => sub {
     };
 
     ok(
-        Intercom::Client::RequestHandler->new({ %$params, auth_token => 'token' }),
+        Intercom::Client::RequestHandler->new({ %$params, access_token => 'token' }),
         'Client created successfully with token'
     );
 };

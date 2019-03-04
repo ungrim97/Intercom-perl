@@ -36,7 +36,7 @@ subtest 'List users' => sub {
     });
 
     my $client = Intercom::Client->new({
-        auth_token => 'test',
+        access_token => 'test',
         ua         => $mock_ua
     });
 
@@ -81,7 +81,7 @@ subtest 'pagination' => sub {
     });
 
     my $client = Intercom::Client->new({
-        auth_token => 'test',
+        access_token => 'test',
         ua         => $mock_ua
     });
 

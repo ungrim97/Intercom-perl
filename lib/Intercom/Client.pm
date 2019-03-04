@@ -15,7 +15,7 @@ use Intercom::Client::RequestHandler;
 use Intercom::Client::User;
 
 # Configuration params passed to request handler
-has auth_token => ( is => 'ro', required => 1 );
+has access_token => ( is => 'ro', required => 1 );
 has base_url   => ( is => 'ro', default  => sub { return URI->new('https://api.intercom.io'); } );
 has ua         => ( is  => 'ro', default  => sub { return LWP::UserAgent->new() } );
 
@@ -26,7 +26,7 @@ sub _build__request_handler {
 
     return Intercom::Client::RequestHandler->new({
         base_url   => $self->base_url,
-        auth_token => $self->auth_token,
+        access_token => $self->access_token,
         ua         => $self->ua
     });
 }
@@ -49,7 +49,7 @@ Intercom::Client - Perl SDK for the Intercom REST API
 
 =head1 SYNOPSIS
 
-    my $client = Intercom::Client->new({token => $auth_token});
+    my $client = Intercom::Client->new({token => $access_token});
 
     my $user = $client->users->fetch({email => $email})
 

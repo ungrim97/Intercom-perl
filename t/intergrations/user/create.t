@@ -65,7 +65,7 @@ subtest 'create user' => sub {
     );
 
     my $client = Intercom::Client->new({
-        auth_token => 'test',
+        access_token => 'test',
         ua         => $mock_ua
     });
 

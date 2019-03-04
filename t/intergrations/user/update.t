@@ -23,7 +23,7 @@ subtest 'Missing param' => sub {
     $mock_ua->map(qr#/users$#, sub { fail('Made HTTP Request'); });
 
     my $client = Intercom::Client->new({
-        auth_token => 'test',
+        access_token => 'test',
         ua         => $mock_ua
     });
 
@@ -80,7 +80,7 @@ subtest 'update user' => sub {
     );
 
     my $client = Intercom::Client->new({
-        auth_token => 'test',
+        access_token => 'test',
         ua         => $mock_ua
     });
 

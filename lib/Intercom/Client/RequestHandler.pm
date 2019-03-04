@@ -10,9 +10,62 @@ use Try::Tiny;
 use URI;
 use URI::QueryParam;
 
+=head1 NAME
+
+Intercom::Client::RequestHandler - Request/Response packing and unpacking
+
+=head1 SYNOPSIS
+
+    my $request_handler->new(
+        base_url   => URI->new('https://api.intercom.io');
+        access_token => '5jg2123asdsadhk4447ds',
+        ua         => LWP::UserAgent->new(),
+    );
+
+    my $resource = $request_handler->get(URI->new('/users'));
+
+=head1 DESCRIPTION
+
+Request and Response handler for all Intercom requests.
+
+This managed building the correct L<HTTP::Request> object
+and unpacking the L<HTTP::Response> objects into Intercom::Model::*
+objects
+
+=head1 ATTRIBUTES
+
+=head2 base_url (URI)
+
+Base URL to use for all requests
+
+=head2 access_token (Str)
+
+The string auth token provided by Intercom
+
+SEE ALSO: L<Access Tokens|https://developers.intercom.com/building-apps/docs/authorization#section-access-tokens>
+
+=head2 ua
+
+User Agent to be used to make requests. Should provide a 'request' methods that accepts
+a L<HTTP::Request> object and returns a L<HTTP::Response> object.
+
+Returned response object must return the original request object via $response->request.
+
+=cut
+
 has base_url   => ( is => 'ro', required => 1 );
-has auth_token => ( is => 'ro', required => 1 );
+has access_token => ( is => 'ro', required => 1 );
 has ua         => ( is => 'ro', required => 1 );
+
+
+=head1 METHODS
+
+=head2 get (URI $uri) -> Intercom::Model::*|Intercom::Model::ErrorList
+
+Make GET requests to the provided URI. If $uri is relative then it
+will be merged with the L<base_url|#base_url>
+
+=cut
 
 sub get {
     my ($self, $uri) = @_;
@@ -20,11 +73,25 @@ sub get {
     return $self->_send_request('GET', $uri);
 }
 
+=head2 put (URI $uri, HashRef $body) -> Intercom::Model::*|Intercom::Model::ErrorList
+
+Make PUT requests to the provided URI sending the $body data encoded
+as JSON. If the $uri is relative then it will be merged with the L<base_url|#base_url>
+
+=cut
+
 sub put {
     my ($self, $uri, $body) = @_;
 
     return $self->_send_request('PUT', $uri, $body);
 }
+
+=head2 post (URI $uri, Any $body) -> Intercom::Model::*|Intercom::Model::ErrorList
+
+Make POST requests to the provided URI sending the $body data encoded
+as JSON. If the $uri is relative then it will be merged with the L<base_url|#base_url>
+
+=cut
 
 sub post {
     my ($self, $uri, $body) = @_;
@@ -32,11 +99,23 @@ sub post {
     return $self->_send_request('POST', $uri, $body);
 }
 
+=head2 delete (URI $uri, Any $body) -> Intercom::Model::*|Intercom::Model::ErrorList
+
+Make DELETE requests to the provided URI sending the $body data encoded
+as JSON. If the $uri is relative then it will be merged with the L<base_url|#base_url>
+
+=cut
+
 sub delete {
     my ($self, $uri, $body) = @_;
 
     return $self->_send_request('DELETE', $uri, $body);
 }
+
+# _send_request (Str $method, URI $uri, Any $body) -> Intercom::Model::*|Intercom::Model::ErrorList
+#
+# Builds the HTTP::Request object from the provided data via _build_request,
+# makes the request, then unpacks the response via _handle_response()
 
 sub _send_request {
     my ($self, $method, $uri, $body) = @_;
@@ -47,6 +126,15 @@ sub _send_request {
         $self->ua->request($request)
     );
 }
+
+# _build_request (Str $method, URI $uri, $body) -> HTTP::Request
+#
+# Uses the base_url to ensure $uri is absolute
+#
+# Serialises any body data as JSON
+#
+# Constructs the HTTP::Request object along with any necessary
+# headers
 
 sub _build_request {
     my ($self, $method, $uri, $body) = @_;
@@ -70,6 +158,13 @@ sub _build_request {
     return $request;
 }
 
+# _deserialise_body (Str $json) -> Any
+#
+# Deserialises a JSON response body. Returns
+# undef if the body is undef.
+#
+# Dies if the body is malformed
+
 sub _deserialise_body {
     my ($self, $json_body) = @_;
 
@@ -79,6 +174,14 @@ sub _deserialise_body {
 
     return;
 }
+
+# _serialise_body (Any $body) -> Str
+#
+# Serialised the body data as a JSON string.
+# Returns undef if the body data is undef.
+#
+# dies if unable to serialise to a valid
+# JSON string
 
 sub _serialise_body {
     my ($self, $body) = @_;
@@ -90,15 +193,30 @@ sub _serialise_body {
     return;
 }
 
+# _build_headers () -> Array
+#
+# Returns an array of header Key/Value pairs:
+#
+# Content-type: application/json
+# Accept: application/json
+# Authrization: Bearer $self->access_token
+# Intercom-Version: 1.1
+
 sub _build_headers {
     my ($self) = @_;
 
     return [
-        'Accept'        => 'application/json',
-        'Content-type'  => 'application/json',
-        'Authorization' => 'Bearer '.$self->auth_token,
+        'Accept'           => 'application/json',
+        'Content-type'     => 'application/json',
+        'Authorization'    => 'Bearer '.$self->access_token,
+        'Intercom-Version' => '1.1'
     ];
 }
+
+# _handler_response (HTTP::Response $response) -> Intercom::Model::*|Any
+#
+# Main entry to unpack the response into an instance of an Intercom::Model
+# object
 
 sub _handle_response {
     my ($self, $response) = @_;
@@ -110,8 +228,18 @@ sub _handle_response {
     return $self->_build_resources($response_data, $response->request->url);
 }
 
-# Run over the data and construct any sub models that were returned in the primary
-# response
+# _build_resource (Any $resource_data, URI $request_url) -> Intercom::Model::*|Any
+#
+# Recursive function that attempts to construct nested Intercom::Model objects
+# returns:
+#
+#   - undef if $resource_data is undefined
+#   - $resource_data if $resource_data is a string
+#   - An Array of the results of each element passed to _build_sub_resources if
+#     $resource_data is an array
+#   - if $resource_data contains a ->{type} then construct a Intercom::Model::*
+#     object otherwise just return $resource_data
+
 sub _build_resources {
     my ($self, $resource_data, $request_url) = @_;
 
@@ -139,6 +267,7 @@ sub _build_resources {
     return $resource_data;
 }
 
+# _build_resource (HashRef $resource_data, URI $request_url) -> Intercom::Model::*
 sub _build_resource {
     my ($self, $resource_data, $request_url) = @_;
 
