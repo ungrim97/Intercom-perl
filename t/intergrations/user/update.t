@@ -1,3 +1,5 @@
+use lib 't/lib';
+
 use JSON;
 use Test::Most tests => 4;
 use Test::MockObject;
