@@ -14,9 +14,9 @@ has auth_token => ( is => 'ro', required => 1 );
 has ua         => ( is => 'ro', required => 1 );
 
 sub get {
-    my ($self, $uri, $body) = @_;
+    my ($self, $uri) = @_;
 
-    return $self->_send_request('GET', $uri, $body);
+    return $self->_send_request('GET', $uri);
 }
 
 sub put {
@@ -140,15 +140,15 @@ sub _build_resources {
         for my $attribute (keys %$resource_data) {
             # Pagination objects are special
             if ($attribute eq 'pages') {
-                $self->_build_paginator($resource_data->{$attribute});
+                $model_data->{$attribute} = $self->_build_paginator($resource_data->{$attribute});
             } else {
                 $model_data->{$attribute} = $self->_build_resources($resource_data->{$attribute});
             }
         }
 
         # typed resource
-        if ($resource_data->{type}) {
-            my $model = $self->_type_to_model($resource_data->{type});
+        if (my $type = $resource_data->{type}) {
+            my $model = $self->_type_to_model($type);
             return $model->new($model_data);
         }
 
@@ -181,6 +181,7 @@ sub _build_paginator {
         'error.list'          => 'ErrorList',
         'admin'               => 'Admin',
         'user'                => 'User',
+        'user.list'           => 'UserList',
         'avatar'              => 'Avatar',
         'location_data'       => 'LocationData',
         'social_profile'      => 'SocialProfile',

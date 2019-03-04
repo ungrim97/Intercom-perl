@@ -79,10 +79,59 @@ sub update {
     return $self->create($user_data);
 }
 
+=head2 list (Hashref $options) -> Intercom::Model::UserList|Intercom::Model::ErrorList
+
+    my $users = $client->users->list({created_since => 365}) # all users in the last year
+
+    do {
+        confess 'Error' if $users->type eq 'ErrorList';
+
+        for my $user ($users->users){
+            ...
+        }
+    } while ($users = $users->page->next() )
+
+Retrieve a list of users. by default this will fetch the last 50 created users. The returned
+L<Intercom::Model::UserList> object also contains a L<page object|Intercom::Model::Page> which
+can be used to fetch more users in a paginated fashion
+
+Available options are:
+
+=over
+
+=item *
+
+page - numeric page to retrieve
+
+=item *
+
+per_page - number of users to include per page (default 50, max 60)
+
+=item *
+
+order - Direction to sort the users via the sort value (default desc)
+
+=item *
+
+sort - Field to sort on. Either created_at, last_request_at, signed_up_at or updated_at. (default created_at)
+
+=item *
+
+created_since - limit results to users that were created in that last number of days
+
+=back
+
+SEE ALSO: L<List Users|https://developers.intercom.com/intercom-api-reference/v1.1/reference#list-users>
+
+=cut
+
 sub list {
     my ($self, $options) = @_;
 
-    return $self->request_handler->get(URI->new('/users'), $options);
+    my $uri = URI->new('/users');
+    $uri->query_form($options);
+
+    return $self->request_handler->get($uri);
 }
 
 =head2 get (HashRef $params) -> Intercom::Model::User|Intercom::Model::ErrorList
