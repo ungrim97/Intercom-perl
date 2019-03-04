@@ -1,7 +1,6 @@
 use Test::Most tests => 3;
 use Test::MockObject;
 use Test::MockObject::Extends;
-use HTTP::Response;
 
 use Intercom::Client::User;
 

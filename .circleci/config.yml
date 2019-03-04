@@ -10,11 +10,11 @@ jobs:
       - run: cpanm Devel::Cover
       - run: cpanm Devel::Cover::Report::Codecov
       - run: cpanm --installdeps .
+      - store_artifacts:
+          path: /root/.cpanm/build.log
       - run:
           command: perl Build.PL && ./Build build
           name: build app
-      - store_artifacts:
-          path: /root/.cpanm/build.log
       - run:
           command: cover -test -report codecov
           name: run tests
