@@ -19,6 +19,7 @@ use_ok $_ for qw(
     Intercom::Model::Tag
     Intercom::Model::TagList
     Intercom::Model::User
+    Intercom::Model::UserList
 );
 
 done_testing;

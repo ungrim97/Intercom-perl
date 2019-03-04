@@ -163,6 +163,23 @@ sub scroll {
     return $self->request_handler->get(URI->new('/users/scroll'), $options);
 }
 
+=head2 archive (HashRef $params) -> Intercom::Model::User|Intercom::Model::ErrorList
+
+    my $user = $client->users->get({id => 1});
+    my $user2 = $client->users->get({email => 'test@test.com'});
+    my $user3 = $client->users->get({user_id => '12333'});
+
+Archive a user based on their primary intercom ID ($params->{id})
+
+alternatively archive a user as identified by their email ($params->{email})
+or custom user_id ($params->{user_id})
+
+Returns either an instance of an Intercom::Model::User or an instance of an Intercom::Model::ErrorList
+
+SEE ALSO: L<Archive a User|https://developers.intercom.com/intercom-api-reference/v1.1/reference#archive-a-user>
+
+=cut
+
 sub archive {
     my ($self, $params) = @_;
 
