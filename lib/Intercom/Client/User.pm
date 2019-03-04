@@ -157,10 +157,33 @@ sub get {
     return $self->request_handler->get($self->_user_path($params));
 }
 
-sub scroll {
-    my ($self, $options) = @_;
+=head2 scroll () -> Intercom::Model::UserList|Intercom::Model::ErrorList
 
-    return $self->request_handler->get(URI->new('/users/scroll'), $options);
+    my $users = $client->users->list({created_since => 365}) # all users in the last year
+
+    do {
+        confess 'Error' if $users->type eq 'ErrorList';
+
+        for my $user ($users->users){
+            ...
+        }
+    } while ($users = $users->page->next() )
+
+Efficiently retrieve a list of users. by default this will fetch the last 50 created users. The returned
+L<Intercom::Model::UserList> object also contains a L<page object|Intercom::Model::Page> which
+can be used to fetch more users in a paginated fashion
+
+NOTE: Scrolled user lists can only be paged to the next page. There is no ability to return
+to a previous page
+
+SEE ALSO: L<Scroll users|https://developers.intercom.com/intercom-api-reference/v1.1/reference#iterating-over-all-users>
+
+=cut
+
+sub scroll {
+    my ($self) = @_;
+
+    return $self->request_handler->get(URI->new('/users/scroll'));
 }
 
 =head2 archive (HashRef $params) -> Intercom::Model::User|Intercom::Model::ErrorList

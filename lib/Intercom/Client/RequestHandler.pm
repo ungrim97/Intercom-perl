@@ -8,6 +8,7 @@ use LWP::UserAgent;
 use Module::Runtime qw/use_module/;
 use Try::Tiny;
 use URI;
+use URI::QueryParam;
 
 has base_url   => ( is => 'ro', required => 1 );
 has auth_token => ( is => 'ro', required => 1 );
@@ -106,13 +107,13 @@ sub _handle_response {
 
     return unless $response_data;
 
-    return $self->_build_resources($response_data);
+    return $self->_build_resources($response_data, $response->request->url);
 }
 
 # Run over the data and construct any sub models that were returned in the primary
 # response
 sub _build_resources {
-    my ($self, $resource_data) = @_;
+    my ($self, $resource_data, $request_url) = @_;
 
     # Empty resource
     if (! defined $resource_data) {
@@ -126,38 +127,69 @@ sub _build_resources {
 
     # List of sub resources (user.list etc)
     if (ref $resource_data eq 'ARRAY') {
-        my $resources = [];
-        for my $sub_resource_data (@{$resource_data}) {
-            push @{$resources}, $self->_build_resources($sub_resource_data);
-        }
-
-        return $resources;
+        return $self->_build_sub_resources($resource_data, $request_url);
     }
 
+    # Main resource data
     if (ref $resource_data eq 'HASH') {
-        # Main resource data
-        my $model_data = {};
-        for my $attribute (keys %$resource_data) {
-            # Pagination objects are special
-            if ($attribute eq 'pages') {
-                $model_data->{$attribute} = $self->_build_paginator($resource_data->{$attribute});
-            } else {
-                $model_data->{$attribute} = $self->_build_resources($resource_data->{$attribute});
-            }
-        }
-
-        # typed resource
-        if (my $type = $resource_data->{type}) {
-            my $model = $self->_type_to_model($type);
-            return $model->new($model_data);
-        }
-
-        # Untyped data
-        return $model_data;
+        return $self->_build_resource($resource_data, $request_url);
     }
 
     # If here we probably have a JSON::Boolean obj, just return it
     return $resource_data;
+}
+
+sub _build_resource {
+    my ($self, $resource_data, $request_url) = @_;
+
+    my $model_data = {};
+    for my $attribute (keys %$resource_data) {
+        # Scrollables are magic pagination objects
+        if ($attribute eq 'scroll_param'){
+            $model_data->{pages} = $self->_build_scrollable_paginator(
+                $resource_data->{$attribute},
+                $request_url
+            );
+
+            next;
+        }
+
+        # Pagination objects are special
+        if ($attribute eq 'pages') {
+            $model_data->{$attribute} = $self->_build_paginator(
+                $resource_data->{$attribute}
+            );
+            next;
+        }
+
+        $model_data->{$attribute} = $self->_build_resources(
+            $resource_data->{$attribute},
+            $request_url
+        );
+    }
+
+    # typed resource
+    if (my $type = $resource_data->{type}) {
+        my $model = $self->_type_to_model($type);
+        return $model->new($model_data);
+    }
+
+    # Untyped data
+    return $model_data;
+}
+
+sub _build_sub_resources {
+    my ($self, $sub_resources, $request_url) = @_;
+
+    my $resources = [];
+    for my $sub_resource (@{$sub_resources}) {
+        push @{$resources}, $self->_build_resources(
+            $sub_resource,
+            $request_url
+        );
+    }
+
+    return $resources;
 }
 
 sub _build_paginator {
@@ -174,6 +206,15 @@ sub _build_paginator {
 
     my $paginator_class = $self->_type_to_model('page');
     return $paginator_class->new($class_data);
+}
+
+sub _build_scrollable_paginator {
+    my ($self, $scroll_param, $request_url) = @_;
+
+    my $next_url = $request_url->clone;
+    $next_url->query_param_append(scroll_param => $scroll_param);
+
+    return $self->_build_paginator({ next => $next_url });
 }
 
 {

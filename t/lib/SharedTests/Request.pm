@@ -1,6 +1,7 @@
 package SharedTests::Request;
 
 use Test::Most;
+use Test::Mock::LWP::Dispatch;
 
 =head1 NAME
 
@@ -47,16 +48,24 @@ sub auth_failure {
     subtest 'auth failure' => sub {
         plan tests => 2;
 
-        my $client = Intercom::Client->new({
-            auth_token => 'token',
-            ua         => Test::MockObject->new()
-        });
-        $client->ua->mock(request => sub {
-            return HTTP::Response->new(
+        my $mock_ua = LWP::UserAgent->new();
+        $mock_ua->map(qr/.*/, sub {
+            my ($request) = @_;
+            my $response = HTTP::Response->new(
                 '401',
                 'Unauthorized',
                 [ 'Content-type' => 'application/json' ],
-                '{"type":"error.list","request_id":"0008pcfj9dh1eig57qv0","errors":[{"code":"token_unauthorized","message":"Unauthorized"}]}');
+                '{"type":"error.list","request_id":"0008pcfj9dh1eig57qv0","errors":[{"code":"token_unauthorized","message":"Unauthorized"}]}'
+            );
+
+            $response->request($request);
+
+            return $response;
+        });
+
+        my $client = Intercom::Client->new({
+            auth_token => 'token',
+            ua         => $mock_ua,
         });
 
         my $model = $call->($client);
@@ -93,12 +102,19 @@ sub connection_failure {
     subtest 'connectkion failure' => sub {
         plan tests => 1;
 
+        my $mock_ua = LWP::UserAgent->new();
+        $mock_ua->map(qr/^.*$/ => sub {
+            my ($request) = @_;
+            my $response = HTTP::Response->new(502);
+
+            $response->request($request);
+
+            return $response;
+        });
+
         my $client = Intercom::Client->new({
             auth_token => 'token',
-            ua         => Test::MockObject->new()
-        });
-        $client->ua->mock(request => sub {
-            return HTTP::Response->new(502);
+            ua         => $mock_ua,
         });
 
         my $error = $call->($client);

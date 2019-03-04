@@ -1,7 +1,7 @@
 use lib 't/lib';
 
 use JSON;
-use Test::Most tests => 5;
+use Test::Most tests => 4;
 use Test::MockObject;
 use Test::Mock::LWP::Dispatch;
 use SharedTests::Request;
@@ -9,11 +9,11 @@ use SharedTests::Request;
 use Intercom::Client;
 
 SharedTests::Request::auth_failure(sub {
-    return shift->users->list({email => 'test@test.com'});
+    return shift->users->scroll({email => 'test@test.com'});
 });
 
 SharedTests::Request::connection_failure(sub {
-    return shift->users->list({email => 'test@test.com'});
+    return shift->users->scroll({email => 'test@test.com'});
 });
 
 subtest 'List users' => sub {
@@ -22,7 +22,7 @@ subtest 'List users' => sub {
     my $user_data = user_data();
 
     my $mock_ua = LWP::UserAgent->new();
-    $mock_ua->map(qr#/users$# => sub {
+    $mock_ua->map(qr#/users/scroll$# => sub {
         my ($request) = @_;
         my $response = HTTP::Response->new(
             '200',
@@ -40,7 +40,7 @@ subtest 'List users' => sub {
         ua         => $mock_ua
     });
 
-    my $userlist = $client->users->list();
+    my $userlist = $client->users->scroll();
     test_model_generation($userlist->users->[0], $user_data->{users}[0]);
 };
 
@@ -55,7 +55,7 @@ subtest 'pagination' => sub {
     my @data = ($user_data, $user_data2);
 
     my $mock_ua = LWP::UserAgent->new();
-    $mock_ua->map(qr#/users$# => sub {
+    $mock_ua->map(qr#/users/scroll$# => sub {
         my ($request) = @_;
         my $response = HTTP::Response->new(
             '200',
@@ -67,7 +67,7 @@ subtest 'pagination' => sub {
         $response->request($request);
         return $response;
     });
-    $mock_ua->map(qr#/users\?per_page=1&page=2$# => sub {
+    $mock_ua->map(qr#/users/scroll\?scroll_param=TestScrollParam$# => sub {
         my ($request) = @_;
         my $response = HTTP::Response->new(
             '200',
@@ -85,38 +85,10 @@ subtest 'pagination' => sub {
         ua         => $mock_ua
     });
 
-    my $userlist = $client->users->list();
+    my $userlist = $client->users->scroll();
     do {
         test_model_generation($userlist->users->[0], shift(@data)->{users}[0]);
     } while ($userlist = $userlist->pages->get_next());
-};
-
-subtest 'with params' => sub {
-    plan tests => 28;
-
-    my $user_data = user_data();
-
-    my $mock_ua = LWP::UserAgent->new();
-    $mock_ua->map(qr#/users\?per_page=1$# => sub {
-        my ($request) = @_;
-        my $response = HTTP::Response->new(
-            '200',
-            'OK',
-            [ 'Content-Type' => 'application/json' ],
-            JSON::encode_json($user_data)
-        );
-
-        $response->request($request);
-        return $response;
-    });
-
-    my $client = Intercom::Client->new({
-        auth_token => 'test',
-        ua         => $mock_ua
-    });
-
-    my $userlist = $client->users->list({per_page => 1});
-    test_model_generation($userlist->users->[0], $user_data->{users}[0]);
 };
 
 sub test_model_generation {
@@ -165,11 +137,7 @@ sub user_data {
 	return {
         type        => 'user.list',
         total_count => 2,
-        pages => {
-            type        => 'page',
-            next        => 'https://api.intercom.io/users?per_page=1&page=2',
-            total_pages => 2,
-        },
+        scroll_param => 'TestScrollParam',
         users => [{
             type                     => "user",
             id                       => '530370b477ad7120001d',

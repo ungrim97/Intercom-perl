@@ -22,12 +22,18 @@ subtest 'via ID' => sub {
     my $user_data = user_data();
 
     my $mock_ua = LWP::UserAgent->new();
-    $mock_ua->map(qr#/users/1$# => HTTP::Response->new(
-        '200',
-        'OK',
-        [ 'Content-Type' => 'application/json' ],
-        JSON::encode_json($user_data)
-    ));
+    $mock_ua->map(qr#/users/1$# => sub {
+        my ($request) = @_;
+        my $response = HTTP::Response->new(
+            '200',
+            'OK',
+            [ 'Content-Type' => 'application/json' ],
+            JSON::encode_json($user_data)
+        );
+
+        $response->request($request);
+        return $response;
+    });
 
     my $client = Intercom::Client->new({
         auth_token => 'test',
@@ -44,12 +50,18 @@ subtest 'via Email' => sub {
     my $user_data = user_data();
 
     my $mock_ua = LWP::UserAgent->new();
-    $mock_ua->map(qr#/users\?email=test%40test\.com$# => HTTP::Response->new(
-        '200',
-        'OK',
-        [ 'Content-Type' => 'application/json' ],
-        JSON::encode_json($user_data)
-    ));
+    $mock_ua->map(qr#/users\?email=test%40test\.com$# => sub {
+        my ($request) = @_;
+        my $response = HTTP::Response->new(
+            '200',
+            'OK',
+            [ 'Content-Type' => 'application/json' ],
+            JSON::encode_json($user_data)
+        );
+
+        $response->request($request);
+        return $response;
+    });
 
     my $client = Intercom::Client->new({
         auth_token => 'test',
@@ -65,12 +77,18 @@ subtest 'via UserID' => sub {
     my $user_data = user_data();
 
     my $mock_ua = LWP::UserAgent->new();
-    $mock_ua->map(qr#/users\?user_id=23134# => HTTP::Response->new(
-        '200',
-        'OK',
-        [ 'Content-Type' => 'application/json' ],
-        JSON::encode_json($user_data)
-    ));
+    $mock_ua->map(qr#/users\?user_id=23134# => sub {
+        my ($request) = @_;
+        my $response = HTTP::Response->new(
+            '200',
+            'OK',
+            [ 'Content-Type' => 'application/json' ],
+            JSON::encode_json($user_data)
+        );
+
+        $response->request($request);
+        return $response;
+    });
 
     my $client = Intercom::Client->new({
         auth_token => 'test',

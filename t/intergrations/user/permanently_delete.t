@@ -29,12 +29,18 @@ subtest 'permanently_delete user' => sub {
 
             return like($request->uri(), qr#/user_delete_requests$#, 'Request has correct URI');
         },
-        HTTP::Response->new(
-            '200',
-            'OK',
-            [ 'Content-Type' => 'application/json' ],
-            JSON::encode_json({id => 1})
-        )
+        sub {
+            my ($request) = @_;
+            my $response = HTTP::Response->new(
+                '200',
+                'OK',
+                [ 'Content-Type' => 'application/json' ],
+                JSON::encode_json({id => 1})
+            );
+
+            $response->request($request);
+            return $response;
+        }
     );
 
     my $client = Intercom::Client->new({

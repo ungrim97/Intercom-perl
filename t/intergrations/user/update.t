@@ -65,12 +65,18 @@ subtest 'update user' => sub {
 
             return like($request->uri(), qr#/users$#, 'Request has correct URI');
         },
-        HTTP::Response->new(
-            '200',
-            'OK',
-            [ 'Content-Type' => 'application/json' ],
-            JSON::encode_json($user_data)
-        )
+        sub {
+            my ($request) = @_;
+            my $response = HTTP::Response->new(
+                '200',
+                'OK',
+                [ 'Content-Type' => 'application/json' ],
+                JSON::encode_json($user_data)
+            );
+
+            $response->request($request);
+            return $response;
+        }
     );
 
     my $client = Intercom::Client->new({
