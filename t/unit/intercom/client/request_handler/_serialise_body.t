@@ -5,7 +5,7 @@ use Intercom::Client::RequestHandler;
 my $request_handler = Intercom::Client::RequestHandler->new(
     access_token => 'test',
     ua           => 'test',
-    base_url     => URI->new('https://test.com')
+    base_url     => 'test',
 );
 
 subtest 'no body' => sub {
