@@ -1,7 +1,7 @@
 use lib 't/lib';
 
 use JSON;
-use Test::Most tests => 3;
+use Test::Most tests => 4;
 use Test::MockObject;
 use Test::Mock::LWP::Dispatch;
 use SharedTests::Request;
@@ -9,18 +9,33 @@ use SharedTests::Request;
 use Intercom::Client;
 
 SharedTests::Request::auth_failure(sub {
-    return shift->users->create({email => 'test@test.com'});
+    return shift->users->update({email => 'test@test.com'});
 });
 
 SharedTests::Request::connection_failure(sub {
-    return shift->users->create({email => 'test@test.com'});
+    return shift->users->update({email => 'test@test.com'});
 });
 
-subtest 'create user' => sub {
+subtest 'Missing param' => sub {
+    plan tests => 1;
+
+    my $mock_ua = LWP::UserAgent->new();
+    $mock_ua->map(qr#/users$#, sub { fail('Made HTTP Request'); });
+
+    my $client = Intercom::Client->new({
+        auth_token => 'test',
+        ua         => $mock_ua
+    });
+
+    my $error = $client->users->update({phone => '+1123456780'});
+    is($error->errors->[0]{code}, 'parameter_not_found', 'Correct error returned for missing param');
+};
+
+subtest 'update user' => sub {
     plan tests => 4;
 
     my $user_data = user_data();
-    my $create_data = {
+    my $update_data = {
         user_id                  => '25',
         email                    => 'wash@serenity.io',
         phone                    => '+1123456789',
@@ -46,7 +61,7 @@ subtest 'create user' => sub {
             my ($request) = @_;
 
             is($request->method, 'POST', 'Request has correct HTTP Verb');
-            cmp_deeply(JSON::decode_json($request->content()), $create_data, 'Request has correct data');
+            cmp_deeply(JSON::decode_json($request->content()), $update_data, 'Request has correct data');
 
             return like($request->uri(), qr#/users$#, 'Request has correct URI');
         },
@@ -69,7 +84,7 @@ subtest 'create user' => sub {
         ua         => $mock_ua
     });
 
-    my $user = $client->users->create({
+    my $user = $client->users->update({
         user_id                  => '25',
         email                    => 'wash@serenity.io',
         phone                    => '+1123456789',

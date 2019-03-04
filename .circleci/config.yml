@@ -10,11 +10,11 @@ jobs:
       - run: cpanm Devel::Cover
       - run: cpanm Devel::Cover::Report::Codecov
       - run: cpanm --installdeps .
+      - store_artifacts:
+          path: /root/.cpanm/build.log
       - run:
           command: perl Build.PL && ./Build build
           name: build app
-      - store_artifacts:
-          path: /root/.cpanm/build.log
       - run:
           command: cover -test -report codecov
           name: run tests
@@ -29,7 +29,7 @@ jobs:
           command: perl Build.PL && ./Build build
           name: build app
       - run:
-          command: ./Build test
+          command: ./Build test --jobs 4
           name: run tests
       - store_artifacts:
           path: /root/.cpanm/build.log
@@ -44,7 +44,7 @@ jobs:
           command: perl Build.PL && ./Build build
           name: build app
       - run:
-          command: ./Build test
+          command: ./Build test --jobs 4
           name: run tests
       - store_artifacts:
           path: /root/.cpanm/build.log
@@ -59,7 +59,7 @@ jobs:
           command: perl Build.PL && ./Build build
           name: build app
       - run:
-          command: ./Build test
+          command: ./Build test --jobs 4
           name: run tests
       - store_artifacts:
           path: /root/.cpanm/build.log
