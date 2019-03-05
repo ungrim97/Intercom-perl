@@ -348,17 +348,17 @@ sub _construct_resource_list {
 sub _construct_paginator {
     my ($self, $page_data) = @_;
 
-    my $class_data = $page_data;
-    $class_data->{request_handler} = $self;
+    my %class_data = %{$page_data};
+    $class_data{request_handler} = $self;
 
     for my $attribute (qw/next last prev first/) {
-        if ($class_data->{$attribute}) {
-            $class_data->{$attribute} = URI->new($class_data->{$attribute});
+        if ($class_data{$attribute}) {
+            $class_data{$attribute} = URI->new($class_data{$attribute});
         }
     }
 
     my $paginator_class = $self->_type_to_resource('page');
-    return $paginator_class->new($class_data);
+    return $paginator_class->new(%class_data);
 }
 
 sub _construct_scrollable_paginator {
