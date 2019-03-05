@@ -19,7 +19,7 @@ subtest 'no content' => sub {
     my $response = Test::MockObject->new();
     $response->mock(content => sub { return undef });
 
-    my $resource = $request_handler->_handle_response($response);
+    my $resource = $request_handler->_manage_response($response);
     is($resource, undef, 'No resource returned for null content');
 };
 
@@ -33,15 +33,15 @@ subtest 'content' => sub {
     $response->mock(content => sub { return 'testContent' });
     $response->mock(request => sub { return $request });
 
-    $request_handler->mock(_build_resources => sub {
+    $request_handler->mock(_transform_resource_data => sub {
         my ($self, $response_data, $request_url) = @_;
 
-        is($response_data, 'testContent', 'response content passed to _build_resources');
-        is($request_url, 'testURL', 'request url passed through to _build_resources');
+        is($response_data, 'testContent', 'response content passed to _transform_resource_data');
+        is($request_url, 'testURL', 'request url passed through to _transform_resource_data');
 
         return 'testResource';
     });
 
-    my $resource = $request_handler->_handle_response($response);
+    my $resource = $request_handler->_manage_response($response);
     is($resource, 'testResource', 'No resource returned for null content');
 };

@@ -16,8 +16,8 @@ use Intercom::Client::User;
 
 # Configuration params passed to request handler
 has access_token => ( is => 'ro', required => 1 );
-has base_url   => ( is => 'ro', default  => sub { return URI->new('https://api.intercom.io'); } );
-has ua         => ( is  => 'ro', default  => sub { return LWP::UserAgent->new() } );
+has base_url     => ( is => 'ro', default  => sub { return URI->new('https://api.intercom.io'); } );
+has ua           => ( is => 'ro', default  => sub { return LWP::UserAgent->new() } );
 
 # Handler to pack and unpack all request/responses
 has _request_handler => ( is => 'lazy' );
@@ -25,13 +25,13 @@ sub _build__request_handler {
     my ($self) = @_;
 
     return Intercom::Client::RequestHandler->new({
-        base_url   => $self->base_url,
+        base_url     => $self->base_url,
         access_token => $self->access_token,
-        ua         => $self->ua
+        ua           => $self->ua
     });
 }
 
-has users => ( is => 'rwp', builder => 1, reader => 'users' );
+has _users => ( is => 'lazy', reader => 'users' );
 sub _build_users {
     return Intercom::Client::User->new({
         request_handler => shift->_request_handler()
@@ -65,17 +65,17 @@ Current supports L<v1.1|https://developers.intercom.com/intercom-api-reference/v
 
     # Create a user
     my $response = $client->users->create({
-        email => 'jayne@serenity.io',
-        custom_attributes: {
-            foo: 'bar'
+        email             => 'jayne@serenity.io',
+        custom_attributes => {
+            foo => 'bar'
         }
     });
 
     # Update a user
     my $response = $client->users->update({
-        email: 'jayne@serenity.io',
-        custom_attributes: {
-            foo: 'bar'
+        email             => 'jayne@serenity.io',
+        custom_attributes => {
+            foo => 'bar'
         }
     });
 
@@ -120,9 +120,12 @@ Most of the code here is 'inspired' heavily by the L<Node|https://github.com/int
 and L<Ruby|https://github.com/intercom/intercom-ruby> SDK implementations. It attempts to maintain
 as similar an interface as possible
 
+Thanks also to Broadbean Technology for the time to create this
+
 =head1 LICENSE
 
 Copyright (C) Mike Eve.
+Copyright (C) Broadbean Technology
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

@@ -20,19 +20,19 @@ subtest '_send_request' => sub {
         )
     );
 
-    $request_handler->mock(_build_request => sub {
+    $request_handler->mock(_construct_request => sub {
         my ($self, $method, $uri, $body) = @_;
 
-        is($method, 'testMethod', 'Method passed to ->_build_request');
-        is($uri, 'testURI', 'Method passed to ->_build_request');
-        is($body, 'testBody', 'Method passed to ->_build_request');
+        is($method, 'testMethod', 'Method passed to ->_construct_request');
+        is($uri, 'testURI', 'Method passed to ->_construct_request');
+        is($body, 'testBody', 'Method passed to ->_construct_request');
 
         return 'testRequest'
     });
-    $request_handler->mock(_handle_response => sub {
+    $request_handler->mock(_manage_response => sub {
         my ($self, $response) = @_;
 
-        is($response, 'testResponse', 'Response passed to ->_handle_response');
+        is($response, 'testResponse', 'Response passed to ->_manage_response');
     });
 
     $request_handler->_send_request('testMethod', 'testURI', 'testBody');

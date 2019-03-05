@@ -44,18 +44,18 @@
          "requires" : {
             "JSON" : "0",
             "LWP::UserAgent" : "0",
-            "Log::Any" : "0",
+            "Module::Runtime" : "0",
             "Moo" : "0",
             "URI" : "0",
+            "URI::QueryParam" : "0",
             "perl" : "5.008001"
          }
       },
       "test" : {
          "requires" : {
-            "Devel::Cover" : "0",
-            "Devel::Cover::Report::Codecov" : "0",
-            "Log::Any::Adapter::TAP" : "0",
+            "Test::Mock::LWP::Dispatch" : "0",
             "Test::MockObject" : "0",
+            "Test::MockObject::Extends" : "0",
             "Test::Most" : "0",
             "Try::Tiny" : "0"
          }

@@ -5,7 +5,7 @@ Intercom::Client - Perl SDK for the Intercom REST API
 
 # SYNOPSIS
 
-    my $client = Intercom::Client->new({token => $auth_token});
+    my $client = Intercom::Client->new({token => $access_token});
 
     my $user = $client->users->fetch({email => $email})
 
@@ -21,17 +21,17 @@ Current supports [v1.1](https://developers.intercom.com/intercom-api-reference/v
 
     # Create a user
     my $response = $client->users->create({
-        email => 'jayne@serenity.io',
-        custom_attributes: {
-            foo: 'bar'
+        email             => 'jayne@serenity.io',
+        custom_attributes => {
+            foo => 'bar'
         }
     });
 
     # Update a user
     my $response = $client->users->update({
-        email: 'jayne@serenity.io',
-        custom_attributes: {
-            foo: 'bar'
+        email             => 'jayne@serenity.io',
+        custom_attributes => {
+            foo => 'bar'
         }
     });
 
@@ -71,9 +71,12 @@ Most of the code here is 'inspired' heavily by the [Node](https://github.com/int
 and [Ruby](https://github.com/intercom/intercom-ruby) SDK implementations. It attempts to maintain
 as similar an interface as possible
 
+Thanks also to Broadbean Technology for the time to create this
+
 # LICENSE
 
 Copyright (C) Mike Eve.
+Copyright (C) Broadbean Technology
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

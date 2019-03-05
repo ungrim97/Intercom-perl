@@ -8,13 +8,10 @@ my $request_handler = Test::MockObject::Extends->new(
     Intercom::Client::RequestHandler->new(
         access_token => 'test',
         ua           => 'test',
-        base_url     => URI->new('https://test.com')
+        base_url     => URI->new('https://test.com'),
+        _headers     => [],
     )
 );
-
-$request_handler->mock(_build_headers => sub {
-    return [];
-});
 
 $request_handler->mock(_serialise_body => sub {
     return $_[1];
@@ -26,7 +23,7 @@ subtest 'Body' => sub {
     subtest 'body' => sub {
         plan tests => 4;
 
-        my $request = $request_handler->_build_request('GET', undef, 'testContent');
+        my $request = $request_handler->_construct_request('GET', undef, 'testContent');
 
         is($request->method, 'GET', 'Request method set');
         is($request->content, 'testContent', 'No body set');
@@ -37,7 +34,7 @@ subtest 'Body' => sub {
     subtest 'no Body' => sub {
         plan tests => 4;
 
-        my $request = $request_handler->_build_request('GET');
+        my $request = $request_handler->_construct_request('GET');
 
         is($request->method, 'GET', 'Request method set');
         is($request->content, '', 'No body set');
@@ -52,7 +49,7 @@ subtest 'URI' => sub {
     subtest 'no URI' => sub {
         plan tests => 4;
 
-        my $request = $request_handler->_build_request('GET');
+        my $request = $request_handler->_construct_request('GET');
 
         is($request->method, 'GET', 'Request method set');
         is($request->content, '', 'No body set');
@@ -63,7 +60,7 @@ subtest 'URI' => sub {
     subtest '- absolute URI' => sub {
         plan tests => 4;
 
-        my $request = $request_handler->_build_request('GET', URI->new('https://foo.com'));
+        my $request = $request_handler->_construct_request('GET', URI->new('https://foo.com'));
 
         is($request->method, 'GET', 'Request method set');
         is($request->content, '', 'No body set');
@@ -74,7 +71,7 @@ subtest 'URI' => sub {
     subtest '- relative URI' => sub {
         plan tests => 4;
 
-        my $request = $request_handler->_build_request('GET', URI->new('/test?foo=bar'));
+        my $request = $request_handler->_construct_request('GET', URI->new('/test?foo=bar'));
 
         is($request->method, 'GET', 'Request method set');
         is($request->content, '', 'No body set');

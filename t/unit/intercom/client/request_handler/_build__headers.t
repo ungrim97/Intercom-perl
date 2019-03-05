@@ -9,7 +9,7 @@ my $request_handler = Intercom::Client::RequestHandler->new(
 );
 
 subtest 'access token' => sub {
-    my $headers = $request_handler->_build_headers();
+    my $headers = $request_handler->_build__headers();
 
     my $expected = [
         'Accept'           => 'application/json',

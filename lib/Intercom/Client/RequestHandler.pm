@@ -53,10 +53,30 @@ Returned response object must return the original request object via $response->
 
 =cut
 
-has base_url   => ( is => 'ro', required => 1 );
+has base_url     => ( is => 'ro', required => 1 );
 has access_token => ( is => 'ro', required => 1 );
-has ua         => ( is => 'ro', required => 1 );
+has ua           => ( is => 'ro', required => 1 );
 
+# _headers () -> Array
+#
+# Returns an array of header Key/Value pairs:
+#
+# Content-type: application/json
+# Accept: application/json
+# Authrization: Bearer $self->access_token
+# Intercom-Version: 1.1
+
+has _headers    => ( is => 'ro', lazy => 1 );
+sub _build__headers {
+    my ($self) = @_;
+
+    return [
+        'Accept'           => 'application/json',
+        'Content-type'     => 'application/json',
+        'Authorization'    => 'Bearer '.$self->access_token,
+        'Intercom-Version' => '1.1'
+    ];
+}
 
 =head1 METHODS
 
@@ -114,20 +134,20 @@ sub delete {
 
 # _send_request (Str $method, URI $uri, Any $body) -> Intercom::Resource::*|Intercom::Resource::ErrorList
 #
-# Builds the HTTP::Request object from the provided data via _build_request,
-# makes the request, then unpacks the response via _handle_response()
+# Builds the HTTP::Request object from the provided data via _construct_request,
+# makes the request, then unpacks the response via _manage_response()
 
 sub _send_request {
     my ($self, $method, $uri, $body) = @_;
 
-    my $request = $self->_build_request($method, $uri, $body);
+    my $request = $self->_construct_request($method, $uri, $body);
 
-    return $self->_handle_response(
+    return $self->_manage_response(
         $self->ua->request($request)
     );
 }
 
-# _build_request (Str $method, URI $uri, $body) -> HTTP::Request
+# _construct_request (Str $method, URI $uri, $body) -> HTTP::Request
 #
 # Uses the base_url to ensure $uri is absolute
 #
@@ -136,7 +156,7 @@ sub _send_request {
 # Constructs the HTTP::Request object along with any necessary
 # headers
 
-sub _build_request {
+sub _construct_request {
     my ($self, $method, $uri, $body) = @_;
 
     my $url = $self->base_url->clone();
@@ -151,7 +171,7 @@ sub _build_request {
     my $request = HTTP::Request->new(
         $method,
         $url,
-        $self->_build_headers,
+        $self->_headers,
         $self->_serialise_body($body)
     );
 
@@ -193,54 +213,35 @@ sub _serialise_body {
     return;
 }
 
-# _build_headers () -> Array
-#
-# Returns an array of header Key/Value pairs:
-#
-# Content-type: application/json
-# Accept: application/json
-# Authrization: Bearer $self->access_token
-# Intercom-Version: 1.1
 
-sub _build_headers {
-    my ($self) = @_;
-
-    return [
-        'Accept'           => 'application/json',
-        'Content-type'     => 'application/json',
-        'Authorization'    => 'Bearer '.$self->access_token,
-        'Intercom-Version' => '1.1'
-    ];
-}
-
-# _handler_response (HTTP::Response $response) -> Intercom::Resource::*|Any
+# _manage_response (HTTP::Response $response) -> Intercom::Resource::*|Any
 #
 # Main entry to unpack the response into an instance of an Intercom::Resource
 # object
 
-sub _handle_response {
+sub _manage_response {
     my ($self, $response) = @_;
 
     my $response_data = $self->_deserialise_body($response->content);
 
     return unless $response_data;
 
-    return $self->_build_resources($response_data, $response->request->url);
+    return $self->_transform_resource_data($response_data, $response->request->url);
 }
 
-# _build_resource (Any $resource_data, URI $request_url) -> Intercom::Resource::*|Any
+# _transform_resource_data (Any $resource_data, URI $request_url) -> Any
 #
 # Recursive function that attempts to construct nested Intercom::Resource objects
 # returns:
 #
 #   - undef if $resource_data is undefined
 #   - $resource_data if $resource_data is a string
-#   - An Array of the results of each element passed to _build_sub_resources if
+#   - An Array of the results of each element passed to _construct_resource_lists if
 #     $resource_data is an array
 #   - if $resource_data contains a ->{type} then construct a Intercom::Resource::*
 #     object otherwise just return $resource_data
 
-sub _build_resources {
+sub _transform_resource_data {
     my ($self, $resource_data, $request_url) = @_;
 
     # Empty resource
@@ -255,27 +256,27 @@ sub _build_resources {
 
     # List of sub resources (user.list etc)
     if (ref $resource_data eq 'ARRAY') {
-        return $self->_build_sub_resources($resource_data, $request_url);
+        return $self->_construct_resource_list($resource_data, $request_url);
     }
 
     # Main resource data
     if (ref $resource_data eq 'HASH') {
-        return $self->_build_resource($resource_data, $request_url);
+        return $self->_construct_resource($resource_data, $request_url);
     }
 
     # If here we probably have a JSON::Boolean obj, just return it
     return $resource_data;
 }
 
-# _build_resource (HashRef $resource_data, URI $request_url) -> Intercom::Resource::*
-sub _build_resource {
+# _construct_resource (HashRef $resource_data, URI $request_url) -> Intercom::Resource::*
+sub _construct_resource {
     my ($self, $resource_data, $request_url) = @_;
 
     my $parsed_resource_data = {};
     for my $attribute (keys %$resource_data) {
         # Scrollables are magic pagination objects
         if ($attribute eq 'scroll_param'){
-            $parsed_resource_data->{pages} = $self->_build_scrollable_paginator(
+            $parsed_resource_data->{pages} = $self->_construct_scrollable_paginator(
                 $resource_data->{$attribute},
                 $request_url
             );
@@ -285,13 +286,13 @@ sub _build_resource {
 
         # Pagination objects are special
         if ($attribute eq 'pages') {
-            $parsed_resource_data->{$attribute} = $self->_build_paginator(
+            $parsed_resource_data->{$attribute} = $self->_construct_paginator(
                 $resource_data->{$attribute}
             );
             next;
         }
 
-        $parsed_resource_data->{$attribute} = $self->_build_resources(
+        $parsed_resource_data->{$attribute} = $self->_transform_resource_data(
             $resource_data->{$attribute},
             $request_url
         );
@@ -307,12 +308,12 @@ sub _build_resource {
     return $resource_data;
 }
 
-sub _build_sub_resources {
+sub _construct_resource_list {
     my ($self, $sub_resources, $request_url) = @_;
 
     my $resources = [];
     for my $sub_resource (@{$sub_resources}) {
-        push @{$resources}, $self->_build_resources(
+        push @{$resources}, $self->_transform_resource_data(
             $sub_resource,
             $request_url
         );
@@ -321,7 +322,7 @@ sub _build_sub_resources {
     return $resources;
 }
 
-sub _build_paginator {
+sub _construct_paginator {
     my ($self, $page_data) = @_;
 
     my $class_data = $page_data;
@@ -337,13 +338,13 @@ sub _build_paginator {
     return $paginator_class->new($class_data);
 }
 
-sub _build_scrollable_paginator {
+sub _construct_scrollable_paginator {
     my ($self, $scroll_param, $request_url) = @_;
 
     my $next_url = $request_url->clone;
     $next_url->query_param_append(scroll_param => $scroll_param);
 
-    return $self->_build_paginator({ next => $next_url });
+    return $self->_construct_paginator({ next => $next_url });
 }
 
 {
