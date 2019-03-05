@@ -14,6 +14,49 @@ use Intercom::Client::RequestHandler;
 
 use Intercom::Client::User;
 
+=head1 NAME
+
+Intercom::Client - Perl SDK for the Intercom REST API
+
+=head1 SYNOPSIS
+
+    my $client = Intercom::Client->new({token => $access_token});
+
+    my $user = $client->users->fetch({email => $email})
+
+=head1 DESCRIPTION
+
+Simple client library to interface with the Intercom REST API.
+
+Current supports L<v1.1|https://developers.intercom.com/intercom-api-reference/v1.1/reference>
+
+=head1 ATTRIBUTES
+
+=head2 base_url (URI)
+
+default - 'https://api.intercom.io'
+
+Base URL to use for all requests
+
+=head2 access_token (Str)
+
+B<required>
+
+The string auth token provided by Intercom
+
+SEE ALSO: L<Access Tokens|https://developers.intercom.com/building-apps/docs/authorization#section-access-tokens>
+
+=head2 ua
+
+default - LWP::UserAgent->new()
+
+User Agent to be used to make requests. Should provide a 'request' methods that accepts
+a L<HTTP::Request> object and returns a L<HTTP::Response> object.
+
+Returned response object must return the original request object via $response->request.
+
+=cut
+
 # Configuration params passed to request handler
 has access_token => ( is => 'ro', required => 1 );
 has base_url     => ( is => 'ro', default  => sub { return URI->new('https://api.intercom.io'); } );
@@ -30,34 +73,6 @@ sub _build__request_handler {
         ua           => $self->ua
     });
 }
-
-has _users => ( is => 'lazy', reader => 'users' );
-sub _build_users {
-    return Intercom::Client::User->new({
-        request_handler => shift->_request_handler()
-    });
-}
-
-1;
-__END__
-
-=encoding utf-8
-
-=head1 NAME
-
-Intercom::Client - Perl SDK for the Intercom REST API
-
-=head1 SYNOPSIS
-
-    my $client = Intercom::Client->new({token => $access_token});
-
-    my $user = $client->users->fetch({email => $email})
-
-=head1 DESCRIPTION
-
-Simple client library to interface with the Intercom REST API.
-
-Current supports L<v1.1|https://developers.intercom.com/intercom-api-reference/v1.1/reference>
 
 =head1 RESOURCES
 
@@ -84,6 +99,18 @@ Provides an object representation of the /users/ API resources
 
 SEE ALSO:
     L<Intercom::Client::User>
+
+=cut
+
+has _users => ( is => 'lazy', reader => 'users' );
+sub _build__users {
+    return Intercom::Client::User->new({
+        request_handler => shift->_request_handler()
+    });
+}
+
+1;
+
 
 =head1 CONTRIBUTING
 

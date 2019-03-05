@@ -36,15 +36,21 @@ objects
 
 =head2 base_url (URI)
 
+B<required>
+
 Base URL to use for all requests
 
 =head2 access_token (Str)
+
+B<required>
 
 The string auth token provided by Intercom
 
 SEE ALSO: L<Access Tokens|https://developers.intercom.com/building-apps/docs/authorization#section-access-tokens>
 
 =head2 ua
+
+B<required>
 
 User Agent to be used to make requests. Should provide a 'request' methods that accepts
 a L<HTTP::Request> object and returns a L<HTTP::Response> object.
