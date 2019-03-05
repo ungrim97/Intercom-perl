@@ -275,11 +275,27 @@ sub _transform_resource_data {
 }
 
 # _construct_resource (HashRef $resource_data, URI $request_url) -> Intercom::Resource::*
+#
+# Takes a hashref of data and attempts to construct an Intercom::Resource::* object
+# from it.
+#
+# Will look for nested resources stored as a value to any key:
+#
+#   - if Key is 'scroll_param' then will construct a scrollable Intercom::Resource::Page object
+#   - if Key is 'pages' then will construct a regular Intercom::Resource::Page object
+#   - otherwise will pass the value to _tranform_resource_data
+#
+# When all attributes have been handled the results will be constructed into an Intercom::Resource
+# object if the $resource_data has a 'type' otherwise the resulting transformed resource will
+# be returned
+
 sub _construct_resource {
     my ($self, $resource_data, $request_url) = @_;
 
     my $parsed_resource_data = {};
     for my $attribute (keys %$resource_data) {
+        next if $attribute eq 'type';
+
         # Scrollables are magic pagination objects
         if ($attribute eq 'scroll_param'){
             $parsed_resource_data->{pages} = $self->_construct_scrollable_paginator(
@@ -295,6 +311,7 @@ sub _construct_resource {
             $parsed_resource_data->{$attribute} = $self->_construct_paginator(
                 $resource_data->{$attribute}
             );
+
             next;
         }
 
@@ -311,7 +328,7 @@ sub _construct_resource {
     }
 
     # Untyped data
-    return $resource_data;
+    return $parsed_resource_data;
 }
 
 sub _construct_resource_list {
