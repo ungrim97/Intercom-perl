@@ -5,15 +5,47 @@ Intercom::Client - Perl SDK for the Intercom REST API
 
 # SYNOPSIS
 
+    use Intercom::Client;
+
     my $client = Intercom::Client->new({token => $access_token});
 
-    my $user = $client->users->fetch({email => $email})
+    my $user = $client->users->get({email => $email});
 
 # DESCRIPTION
+
+**BETA**
 
 Simple client library to interface with the Intercom REST API.
 
 Current supports [v1.1](https://developers.intercom.com/intercom-api-reference/v1.1/reference)
+of the API.
+
+**THIS SOFTWARE IS CURRENTLY IN BETA AND ONLY SUPPORTS THE USER RESOURCE**
+
+# ATTRIBUTES
+
+## base\_url (URI)
+
+default - 'https://api.intercom.io'
+
+Base URL to use for all requests
+
+## access\_token (Str)
+
+**required**
+
+The string auth token provided by Intercom
+
+SEE ALSO: [Access Tokens](https://developers.intercom.com/building-apps/docs/authorization#section-access-tokens)
+
+## ua
+
+default - LWP::UserAgent->new()
+
+User Agent to be used to make requests. Should provide a 'request' methods that accepts
+a [HTTP::Request](https://metacpan.org/pod/HTTP::Request) object and returns a [HTTP::Response](https://metacpan.org/pod/HTTP::Response) object.
+
+Returned response object must return the original request object via $response->request.
 
 # RESOURCES
 
@@ -39,6 +71,10 @@ Provides an object representation of the /users/ API resources
 
 SEE ALSO:
     [Intercom::Client::User](https://metacpan.org/pod/Intercom::Client::User)
+
+# INSTALLATION
+
+    cpanm Intercom::Client;
 
 # CONTRIBUTING
 
@@ -76,6 +112,7 @@ Thanks also to Broadbean Technology for the time to create this
 # LICENSE
 
 Copyright (C) Mike Eve.
+
 Copyright (C) Broadbean Technology
 
 This library is free software; you can redistribute it and/or modify
