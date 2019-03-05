@@ -1,14 +1,11 @@
 use Test::Most tests => 1;
-use Test::MockObject::Extends;
 
 use Intercom::Client::RequestHandler;
 
-my $request_handler = Test::MockObject::Extends->new(
-    Intercom::Client::RequestHandler->new(
-        access_token => 'test',
-        ua           => 'test',
-        base_url     => 'test'
-    )
+my $request_handler = Intercom::Client::RequestHandler->new(
+    access_token => 'test',
+    ua           => 'test',
+    base_url     => 'test'
 );
 
 subtest 'convert to uri' => sub {
