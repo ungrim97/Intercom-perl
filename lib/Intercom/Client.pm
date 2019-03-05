@@ -11,7 +11,6 @@ use LWP::UserAgent;
 use URI;
 
 use Intercom::Client::RequestHandler;
-
 use Intercom::Client::User;
 
 =head1 NAME
@@ -20,15 +19,22 @@ Intercom::Client - Perl SDK for the Intercom REST API
 
 =head1 SYNOPSIS
 
+    use Intercom::Client;
+
     my $client = Intercom::Client->new({token => $access_token});
 
-    my $user = $client->users->fetch({email => $email})
+    my $user = $client->users->get({email => $email});
 
 =head1 DESCRIPTION
+
+B<BETA>
 
 Simple client library to interface with the Intercom REST API.
 
 Current supports L<v1.1|https://developers.intercom.com/intercom-api-reference/v1.1/reference>
+of the API.
+
+B<THIS SOFTWARE IS CURRENTLY IN BETA AND ONLY SUPPORTS THE USER RESOURCE>
 
 =head1 ATTRIBUTES
 
@@ -111,6 +117,9 @@ sub _build__users {
 
 1;
 
+=head1 INSTALLATION
+
+    cpanm Intercom::Client;
 
 =head1 CONTRIBUTING
 
@@ -152,6 +161,7 @@ Thanks also to Broadbean Technology for the time to create this
 =head1 LICENSE
 
 Copyright (C) Mike Eve.
+
 Copyright (C) Broadbean Technology
 
 This library is free software; you can redistribute it and/or modify
