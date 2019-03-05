@@ -1,4 +1,4 @@
-package Intercom::Model::Company;
+package Intercom::Resource::Company;
 
 use Moo;
 

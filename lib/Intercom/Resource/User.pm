@@ -1,4 +1,4 @@
-package Intercom::Model::User;
+package Intercom::Resource::User;
 
 use Moo;
 

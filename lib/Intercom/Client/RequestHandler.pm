@@ -29,7 +29,7 @@ Intercom::Client::RequestHandler - Request/Response packing and unpacking
 Request and Response handler for all Intercom requests.
 
 This managed building the correct L<HTTP::Request> object
-and unpacking the L<HTTP::Response> objects into Intercom::Model::*
+and unpacking the L<HTTP::Response> objects into Intercom::Resource::*
 objects
 
 =head1 ATTRIBUTES
@@ -60,7 +60,7 @@ has ua         => ( is => 'ro', required => 1 );
 
 =head1 METHODS
 
-=head2 get (URI $uri) -> Intercom::Model::*|Intercom::Model::ErrorList
+=head2 get (URI $uri) -> Intercom::Resource::*|Intercom::Resource::ErrorList
 
 Make GET requests to the provided URI. If $uri is relative then it
 will be merged with the L<base_url|#base_url>
@@ -73,7 +73,7 @@ sub get {
     return $self->_send_request('GET', $uri);
 }
 
-=head2 put (URI $uri, HashRef $body) -> Intercom::Model::*|Intercom::Model::ErrorList
+=head2 put (URI $uri, HashRef $body) -> Intercom::Resource::*|Intercom::Resource::ErrorList
 
 Make PUT requests to the provided URI sending the $body data encoded
 as JSON. If the $uri is relative then it will be merged with the L<base_url|#base_url>
@@ -86,7 +86,7 @@ sub put {
     return $self->_send_request('PUT', $uri, $body);
 }
 
-=head2 post (URI $uri, Any $body) -> Intercom::Model::*|Intercom::Model::ErrorList
+=head2 post (URI $uri, Any $body) -> Intercom::Resource::*|Intercom::Resource::ErrorList
 
 Make POST requests to the provided URI sending the $body data encoded
 as JSON. If the $uri is relative then it will be merged with the L<base_url|#base_url>
@@ -99,7 +99,7 @@ sub post {
     return $self->_send_request('POST', $uri, $body);
 }
 
-=head2 delete (URI $uri, Any $body) -> Intercom::Model::*|Intercom::Model::ErrorList
+=head2 delete (URI $uri, Any $body) -> Intercom::Resource::*|Intercom::Resource::ErrorList
 
 Make DELETE requests to the provided URI sending the $body data encoded
 as JSON. If the $uri is relative then it will be merged with the L<base_url|#base_url>
@@ -112,7 +112,7 @@ sub delete {
     return $self->_send_request('DELETE', $uri, $body);
 }
 
-# _send_request (Str $method, URI $uri, Any $body) -> Intercom::Model::*|Intercom::Model::ErrorList
+# _send_request (Str $method, URI $uri, Any $body) -> Intercom::Resource::*|Intercom::Resource::ErrorList
 #
 # Builds the HTTP::Request object from the provided data via _build_request,
 # makes the request, then unpacks the response via _handle_response()
@@ -213,9 +213,9 @@ sub _build_headers {
     ];
 }
 
-# _handler_response (HTTP::Response $response) -> Intercom::Model::*|Any
+# _handler_response (HTTP::Response $response) -> Intercom::Resource::*|Any
 #
-# Main entry to unpack the response into an instance of an Intercom::Model
+# Main entry to unpack the response into an instance of an Intercom::Resource
 # object
 
 sub _handle_response {
@@ -228,16 +228,16 @@ sub _handle_response {
     return $self->_build_resources($response_data, $response->request->url);
 }
 
-# _build_resource (Any $resource_data, URI $request_url) -> Intercom::Model::*|Any
+# _build_resource (Any $resource_data, URI $request_url) -> Intercom::Resource::*|Any
 #
-# Recursive function that attempts to construct nested Intercom::Model objects
+# Recursive function that attempts to construct nested Intercom::Resource objects
 # returns:
 #
 #   - undef if $resource_data is undefined
 #   - $resource_data if $resource_data is a string
 #   - An Array of the results of each element passed to _build_sub_resources if
 #     $resource_data is an array
-#   - if $resource_data contains a ->{type} then construct a Intercom::Model::*
+#   - if $resource_data contains a ->{type} then construct a Intercom::Resource::*
 #     object otherwise just return $resource_data
 
 sub _build_resources {
@@ -267,15 +267,15 @@ sub _build_resources {
     return $resource_data;
 }
 
-# _build_resource (HashRef $resource_data, URI $request_url) -> Intercom::Model::*
+# _build_resource (HashRef $resource_data, URI $request_url) -> Intercom::Resource::*
 sub _build_resource {
     my ($self, $resource_data, $request_url) = @_;
 
-    my $model_data = {};
+    my $parsed_resource_data = {};
     for my $attribute (keys %$resource_data) {
         # Scrollables are magic pagination objects
         if ($attribute eq 'scroll_param'){
-            $model_data->{pages} = $self->_build_scrollable_paginator(
+            $parsed_resource_data->{pages} = $self->_build_scrollable_paginator(
                 $resource_data->{$attribute},
                 $request_url
             );
@@ -285,13 +285,13 @@ sub _build_resource {
 
         # Pagination objects are special
         if ($attribute eq 'pages') {
-            $model_data->{$attribute} = $self->_build_paginator(
+            $parsed_resource_data->{$attribute} = $self->_build_paginator(
                 $resource_data->{$attribute}
             );
             next;
         }
 
-        $model_data->{$attribute} = $self->_build_resources(
+        $parsed_resource_data->{$attribute} = $self->_build_resources(
             $resource_data->{$attribute},
             $request_url
         );
@@ -299,12 +299,12 @@ sub _build_resource {
 
     # typed resource
     if (my $type = $resource_data->{type}) {
-        my $model = $self->_type_to_model($type);
-        return $model->new($model_data);
+        my $resource = $self->_type_to_resource($type);
+        return $resource->new($parsed_resource_data);
     }
 
     # Untyped data
-    return $model_data;
+    return $resource_data;
 }
 
 sub _build_sub_resources {
@@ -333,7 +333,7 @@ sub _build_paginator {
         }
     }
 
-    my $paginator_class = $self->_type_to_model('page');
+    my $paginator_class = $self->_type_to_resource('page');
     return $paginator_class->new($class_data);
 }
 
@@ -365,13 +365,13 @@ sub _build_scrollable_paginator {
         'page'                => 'Page',
     };
 
-    sub _type_to_model {
+    sub _type_to_resource {
         my ($self, $type) = @_;
 
         return try {
-            return use_module('Intercom::Model::'.$type_map->{$type});
+            return use_module('Intercom::Resource::'.$type_map->{$type});
         } catch {
-            confess "Unable to find model for [$type]"
+            confess "Unable to find resource for [$type]"
         };
     }
 }

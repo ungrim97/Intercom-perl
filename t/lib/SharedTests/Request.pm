@@ -68,11 +68,11 @@ sub auth_failure {
             ua         => $mock_ua,
         });
 
-        my $model = $call->($client);
+        my $resource = $call->($client);
 
-        is($model->type, 'error.list', 'ErrorList model returned');
+        is($resource->type, 'error.list', 'ErrorList resource returned');
         cmp_deeply(
-            $model->errors,
+            $resource->errors,
             [{
                 code => 'token_unauthorized',
                 message => 'Unauthorized'

@@ -1,4 +1,4 @@
-package Intercom::Model::SocialProfileList;
+package Intercom::Resource::SocialProfileList;
 
 use Moo;
 

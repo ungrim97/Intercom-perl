@@ -2,7 +2,7 @@ package Intercom::Client::User;
 
 use Moo;
 use URI;
-use Intercom::Model::ErrorList;
+use Intercom::Resource::ErrorList;
 
 # Request handler for the client. This differes from the
 # other SDK implementations to avoid circular references
@@ -20,7 +20,7 @@ Intercom::Client::User - User Resource class
 
 =head1 METHODS
 
-=head2 create (HashRef $user_data) -> Intercom::Model::User|Intercom::Model::ErrorList
+=head2 create (HashRef $user_data) -> Intercom::Resource::User|Intercom::Resource::ErrorList
 
     my $user = $client->users->create({
         email => 'test@test.com',
@@ -32,7 +32,7 @@ Intercom::Client::User - User Resource class
 
 Create a new user with the provided $user_data.
 
-Will return a new instance of a Intercom::Model::User or an instance of an Intercom::Model::ErrorList
+Will return a new instance of a Intercom::Resource::User or an instance of an Intercom::Resource::ErrorList
 
 SEE ALSO:
     L<Create Users|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-user>
@@ -45,7 +45,7 @@ sub create {
     return $self->request_handler->post(URI->new('/users'), $user_data);
 }
 
-=head2 update (HasRef $user_data) -> Intercom::Model::User|Intercom::Model::ErrorList
+=head2 update (HasRef $user_data) -> Intercom::Resource::User|Intercom::Resource::ErrorList
 
     my $user = $client->users->update({
         email => 'test@test.com',
@@ -58,7 +58,7 @@ sub create {
 Update an existing user with the provided $user_data. User will be matched by the value of the 'id', 'email'
 or 'user_id' fields in the data
 
-Will return a new instance of a Intercom::Model::User or an instance of an Intercom::Model::ErrorList
+Will return a new instance of a Intercom::Resource::User or an instance of an Intercom::Resource::ErrorList
 
 SEE ALSO:
     L<Update Users|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-user>
@@ -70,7 +70,7 @@ sub update {
     my ($self, $user_data) = @_;
 
     unless ($user_data->{id} || $user_data->{email} || $user_data->{user_id}) {
-        return Intercom::Model::ErrorList->new(errors => [{
+        return Intercom::Resource::ErrorList->new(errors => [{
             code => 'parameter_not_found',
             message => 'Update requires one of `id`, `email` or `user_id`'
         }]);
@@ -79,7 +79,7 @@ sub update {
     return $self->create($user_data);
 }
 
-=head2 list (Hashref $options) -> Intercom::Model::UserList|Intercom::Model::ErrorList
+=head2 list (Hashref $options) -> Intercom::Resource::UserList|Intercom::Resource::ErrorList
 
     my $users = $client->users->list({created_since => 365}) # all users in the last year
 
@@ -92,7 +92,7 @@ sub update {
     } while ($users = $users->page->next() )
 
 Retrieve a list of users. by default this will fetch the last 50 created users. The returned
-L<Intercom::Model::UserList> object also contains a L<page object|Intercom::Model::Page> which
+L<Intercom::Resource::UserList> object also contains a L<page object|Intercom::Resource::Page> which
 can be used to fetch more users in a paginated fashion
 
 Available options are:
@@ -134,7 +134,7 @@ sub list {
     return $self->request_handler->get($uri);
 }
 
-=head2 get (HashRef $params) -> Intercom::Model::User|Intercom::Model::ErrorList
+=head2 get (HashRef $params) -> Intercom::Resource::User|Intercom::Resource::ErrorList
 
     my $user = $client->users->get({id => 1});
     my $user2 = $client->users->get({email => 'test@test.com'});
@@ -145,7 +145,7 @@ Retrieve a user based on their primary intercom ID ($params->{id})
 alternatively retrieve a user as identified by their email ($params->{email})
 or custom user_id ($params->{user_id})
 
-Returns either an instance of an Intercom::Model::User or an instance of an Intercom::Model::ErrorList
+Returns either an instance of an Intercom::Resource::User or an instance of an Intercom::Resource::ErrorList
 
 SEE ALSO: L<View a User|https://developers.intercom.com/intercom-api-reference/v1.1/reference#view-a-user>
 
@@ -157,7 +157,7 @@ sub get {
     return $self->request_handler->get($self->_user_path($params));
 }
 
-=head2 scroll () -> Intercom::Model::UserList|Intercom::Model::ErrorList
+=head2 scroll () -> Intercom::Resource::UserList|Intercom::Resource::ErrorList
 
     my $users = $client->users->list({created_since => 365}) # all users in the last year
 
@@ -170,7 +170,7 @@ sub get {
     } while ($users = $users->page->next() )
 
 Efficiently retrieve a list of users. by default this will fetch the last 50 created users. The returned
-L<Intercom::Model::UserList> object also contains a L<page object|Intercom::Model::Page> which
+L<Intercom::Resource::UserList> object also contains a L<page object|Intercom::Resource::Page> which
 can be used to fetch more users in a paginated fashion
 
 NOTE: Scrolled user lists can only be paged to the next page. There is no ability to return
@@ -186,7 +186,7 @@ sub scroll {
     return $self->request_handler->get(URI->new('/users/scroll'));
 }
 
-=head2 archive (HashRef $params) -> Intercom::Model::User|Intercom::Model::ErrorList
+=head2 archive (HashRef $params) -> Intercom::Resource::User|Intercom::Resource::ErrorList
 
     my $user = $client->users->get({id => 1});
     my $user2 = $client->users->get({email => 'test@test.com'});
@@ -197,7 +197,7 @@ Archive a user based on their primary intercom ID ($params->{id})
 alternatively archive a user as identified by their email ($params->{email})
 or custom user_id ($params->{user_id})
 
-Returns either an instance of an Intercom::Model::User or an instance of an Intercom::Model::ErrorList
+Returns either an instance of an Intercom::Resource::User or an instance of an Intercom::Resource::ErrorList
 
 SEE ALSO: L<Archive a User|https://developers.intercom.com/intercom-api-reference/v1.1/reference#archive-a-user>
 
@@ -209,7 +209,7 @@ sub archive {
     return $self->request_handler->delete($self->_user_path($params));
 }
 
-=head1 permanently_delete (Str $id) -> HashRef|Intercom::Model::ErrorList
+=head1 permanently_delete (Str $id) -> HashRef|Intercom::Resource::ErrorList
 
     my $return = $client->users->permanently_delete(1);
 

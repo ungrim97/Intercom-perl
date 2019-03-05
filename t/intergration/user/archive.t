@@ -40,8 +40,8 @@ subtest 'via ID' => sub {
         ua         => $mock_ua
     });
 
-    my $model = $client->users->archive({id => 1});
-    test_model_generation($model, $user_data);
+    my $resource = $client->users->archive({id => 1});
+    test_resource_generation($resource, $user_data);
 };
 
 subtest 'via Email' => sub {
@@ -68,7 +68,7 @@ subtest 'via Email' => sub {
         ua         => $mock_ua
     });
 
-    test_model_generation($client->users->archive({email => 'test@test.com'}), $user_data);
+    test_resource_generation($client->users->archive({email => 'test@test.com'}), $user_data);
 };
 
 subtest 'via UserID' => sub {
@@ -95,48 +95,48 @@ subtest 'via UserID' => sub {
         ua         => $mock_ua
     });
 
-    test_model_generation($client->users->archive({user_id => 23134}), $user_data);
+    test_resource_generation($client->users->archive({user_id => 23134}), $user_data);
 };
 
-sub test_model_generation {
-    my ($model, $user_data) = @_;
+sub test_resource_generation {
+    my ($resource, $user_data) = @_;
 
-    is($model->type, 'user', 'User model returned');
+    is($resource->type, 'user', 'User resource returned');
 
-    # Basic user model data
-    is($model->id, $user_data->{'id'}, 'id has correct value');
-    is($model->user_id, $user_data->{'user_id'}, 'user_id has correct value');
-    is($model->email, $user_data->{'email'}, 'email has correct value');
-    is($model->phone, $user_data->{'phone'}, 'phone has correct value');
-    is($model->name, $user_data->{'name'}, 'name has correct value');
-    is($model->updated_at, $user_data->{'updated_at'}, 'updated_at has correct value');
-    is($model->last_seen_ip, $user_data->{'last_seen_ip'}, 'last_seen_ip has correct value');
-    is($model->unsubscribed_from_emails, $user_data->{'unsubscribed_from_emails'}, 'unsubscribed_from_emails has correct value');
-    is($model->last_request_at, $user_data->{'last_request_at'}, 'last_request_at has correct value');
-    is($model->signed_up_at, $user_data->{'signed_up_at'}, 'signed_up_at has correct value');
-    is($model->created_at, $user_data->{'created_at'}, 'created_at has correct value');
-    is($model->session_count, $user_data->{'session_count'}, 'session_count has correct value');
-    is($model->user_agent_data, $user_data->{'user_agent_data'}, 'user_agent_data has correct value');
-    is($model->pseudonym, $user_data->{'pseudonym'}, 'pseudonym has correct value');
-    is($model->anonymous, $user_data->{'anonymous'}, 'anonymous has correct value');
-    is($model->referrer, $user_data->{'referrer'}, 'referrer has correct value');
-    is($model->utm_campaign, $user_data->{'utm_campaign'}, 'utm_campaign has correct value');
-    is($model->utm_content, $user_data->{'utm_content'}, 'utm_content has correct value');
-    is($model->utm_medium, $user_data->{'utm_medium'}, 'utm_medium has correct value');
-    is($model->utm_source, $user_data->{'utm_source'}, 'utm_source has correct value');
-    is($model->utm_term, $user_data->{'utm_term'}, 'utm_term has correct value');
+    # Basic user resource data
+    is($resource->id, $user_data->{'id'}, 'id has correct value');
+    is($resource->user_id, $user_data->{'user_id'}, 'user_id has correct value');
+    is($resource->email, $user_data->{'email'}, 'email has correct value');
+    is($resource->phone, $user_data->{'phone'}, 'phone has correct value');
+    is($resource->name, $user_data->{'name'}, 'name has correct value');
+    is($resource->updated_at, $user_data->{'updated_at'}, 'updated_at has correct value');
+    is($resource->last_seen_ip, $user_data->{'last_seen_ip'}, 'last_seen_ip has correct value');
+    is($resource->unsubscribed_from_emails, $user_data->{'unsubscribed_from_emails'}, 'unsubscribed_from_emails has correct value');
+    is($resource->last_request_at, $user_data->{'last_request_at'}, 'last_request_at has correct value');
+    is($resource->signed_up_at, $user_data->{'signed_up_at'}, 'signed_up_at has correct value');
+    is($resource->created_at, $user_data->{'created_at'}, 'created_at has correct value');
+    is($resource->session_count, $user_data->{'session_count'}, 'session_count has correct value');
+    is($resource->user_agent_data, $user_data->{'user_agent_data'}, 'user_agent_data has correct value');
+    is($resource->pseudonym, $user_data->{'pseudonym'}, 'pseudonym has correct value');
+    is($resource->anonymous, $user_data->{'anonymous'}, 'anonymous has correct value');
+    is($resource->referrer, $user_data->{'referrer'}, 'referrer has correct value');
+    is($resource->utm_campaign, $user_data->{'utm_campaign'}, 'utm_campaign has correct value');
+    is($resource->utm_content, $user_data->{'utm_content'}, 'utm_content has correct value');
+    is($resource->utm_medium, $user_data->{'utm_medium'}, 'utm_medium has correct value');
+    is($resource->utm_source, $user_data->{'utm_source'}, 'utm_source has correct value');
+    is($resource->utm_term, $user_data->{'utm_term'}, 'utm_term has correct value');
 
     # User custom attributes
-    cmp_deeply($model->custom_attributes, $user_data->{custom_attributes}, 'custom_attributes has the correct value');
+    cmp_deeply($resource->custom_attributes, $user_data->{custom_attributes}, 'custom_attributes has the correct value');
 
     # Avatar
-    is($model->avatar->type, 'avatar', 'User has Avatar resource');
-    is($model->avatar->image_url, $user_data->{avatar}{'image_url'}, 'Avatar->image_url has correct value');
+    is($resource->avatar->type, 'avatar', 'User has Avatar resource');
+    is($resource->avatar->image_url, $user_data->{avatar}{'image_url'}, 'Avatar->image_url has correct value');
 
     # Companies
-    is($model->companies->type, 'company.list', 'User has companies list resource');
-    is($model->companies->companies->[0]->type, 'company', 'CompanyList has a company resource');
-    is($model->companies->companies->[0]->id, $user_data->{companies}{companies}[0]{'id'}, 'Company->id has correct value');
+    is($resource->companies->type, 'company.list', 'User has companies list resource');
+    is($resource->companies->companies->[0]->type, 'company', 'CompanyList has a company resource');
+    is($resource->companies->companies->[0]->id, $user_data->{companies}{companies}[0]{'id'}, 'Company->id has correct value');
 };
 
 

@@ -1,4 +1,4 @@
-package Intercom::Model::SegmentList;
+package Intercom::Resource::SegmentList;
 
 use Moo;
 

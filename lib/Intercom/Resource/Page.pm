@@ -1,4 +1,4 @@
-package Intercom::Model::Page;
+package Intercom::Resource::Page;
 
 use Moo;
 

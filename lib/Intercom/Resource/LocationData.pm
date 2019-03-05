@@ -1,4 +1,4 @@
-package Intercom::Model::LocationData;
+package Intercom::Resource::LocationData;
 
 use Moo;
 

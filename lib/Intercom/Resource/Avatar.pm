@@ -1,4 +1,4 @@
-package Intercom::Model::Avatar;
+package Intercom::Resource::Avatar;
 
 use Moo;
 

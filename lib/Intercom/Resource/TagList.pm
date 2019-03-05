@@ -1,4 +1,4 @@
-package Intercom::Model::TagList;
+package Intercom::Resource::TagList;
 
 use Moo;
 

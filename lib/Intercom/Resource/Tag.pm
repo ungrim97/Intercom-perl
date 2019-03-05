@@ -1,4 +1,4 @@
-package Intercom::Model::Tag;
+package Intercom::Resource::Tag;
 
 use Moo;
 

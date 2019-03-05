@@ -1,4 +1,4 @@
-package Intercom::Model::Admin;
+package Intercom::Resource::Admin;
 
 use Moo;
 

@@ -1,4 +1,4 @@
-package Intercom::Model::ErrorList;
+package Intercom::Resource::ErrorList;
 
 use Moo;
 
