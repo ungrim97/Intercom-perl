@@ -32,15 +32,15 @@ This managed building the correct L<HTTP::Request> object
 and unpacking the L<HTTP::Response> objects into Intercom::Resource::*
 objects
 
-=head1 ATTRIBUTES
+=head2 ATTRIBUTES
 
-=head2 base_url (URI)
+=head3 base_url (URI)
 
 B<required>
 
 Base URL to use for all requests
 
-=head2 access_token (Str)
+=head3 access_token (Str)
 
 B<required>
 
@@ -48,7 +48,7 @@ The string auth token provided by Intercom
 
 SEE ALSO: L<Access Tokens|https://developers.intercom.com/building-apps/docs/authorization#section-access-tokens>
 
-=head2 ua
+=head3 ua
 
 B<required>
 
@@ -84,9 +84,9 @@ sub _build__headers {
     ];
 }
 
-=head1 METHODS
+=head2 METHODS
 
-=head2 get (URI $uri) -> Intercom::Resource::*|Intercom::Resource::ErrorList
+=head3 get (URI $uri) -> Intercom::Resource::*|Intercom::Resource::ErrorList
 
 Make GET requests to the provided URI. If $uri is relative then it
 will be merged with the L<base_url|#base_url>
@@ -99,7 +99,7 @@ sub get {
     return $self->_send_request('GET', $uri);
 }
 
-=head2 put (URI $uri, HashRef $body) -> Intercom::Resource::*|Intercom::Resource::ErrorList
+=head3 put (URI $uri, HashRef $body) -> Intercom::Resource::*|Intercom::Resource::ErrorList
 
 Make PUT requests to the provided URI sending the $body data encoded
 as JSON. If the $uri is relative then it will be merged with the L<base_url|#base_url>
@@ -112,7 +112,7 @@ sub put {
     return $self->_send_request('PUT', $uri, $body);
 }
 
-=head2 post (URI $uri, Any $body) -> Intercom::Resource::*|Intercom::Resource::ErrorList
+=head3 post (URI $uri, Any $body) -> Intercom::Resource::*|Intercom::Resource::ErrorList
 
 Make POST requests to the provided URI sending the $body data encoded
 as JSON. If the $uri is relative then it will be merged with the L<base_url|#base_url>
@@ -125,7 +125,7 @@ sub post {
     return $self->_send_request('POST', $uri, $body);
 }
 
-=head2 delete (URI $uri, Any $body) -> Intercom::Resource::*|Intercom::Resource::ErrorList
+=head3 delete (URI $uri, Any $body) -> Intercom::Resource::*|Intercom::Resource::ErrorList
 
 Make DELETE requests to the provided URI sending the $body data encoded
 as JSON. If the $uri is relative then it will be merged with the L<base_url|#base_url>

@@ -22,15 +22,15 @@ of the API.
 
 **THIS SOFTWARE IS CURRENTLY IN BETA AND ONLY SUPPORTS THE USER RESOURCE**
 
-# ATTRIBUTES
+## ATTRIBUTES
 
-## base\_url (URI)
+### base\_url (URI)
 
 default - 'https://api.intercom.io'
 
 Base URL to use for all requests
 
-## access\_token (Str)
+### access\_token (Str)
 
 **required**
 
@@ -38,7 +38,7 @@ The string auth token provided by Intercom
 
 SEE ALSO: [Access Tokens](https://developers.intercom.com/building-apps/docs/authorization#section-access-tokens)
 
-## ua
+### ua
 
 default - LWP::UserAgent->new()
 
@@ -47,9 +47,9 @@ a [HTTP::Request](https://metacpan.org/pod/HTTP::Request) object and returns a [
 
 Returned response object must return the original request object via $response->request.
 
-# RESOURCES
+## RESOURCES
 
-## users
+### users
 
     # Create a user
     my $response = $client->users->create({

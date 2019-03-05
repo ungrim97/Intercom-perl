@@ -36,15 +36,15 @@ of the API.
 
 B<THIS SOFTWARE IS CURRENTLY IN BETA AND ONLY SUPPORTS THE USER RESOURCE>
 
-=head1 ATTRIBUTES
+=head2 ATTRIBUTES
 
-=head2 base_url (URI)
+=head3 base_url (URI)
 
 default - 'https://api.intercom.io'
 
 Base URL to use for all requests
 
-=head2 access_token (Str)
+=head3 access_token (Str)
 
 B<required>
 
@@ -52,7 +52,7 @@ The string auth token provided by Intercom
 
 SEE ALSO: L<Access Tokens|https://developers.intercom.com/building-apps/docs/authorization#section-access-tokens>
 
-=head2 ua
+=head3 ua
 
 default - LWP::UserAgent->new()
 
@@ -80,9 +80,9 @@ sub _build__request_handler {
     });
 }
 
-=head1 RESOURCES
+=head2 RESOURCES
 
-=head2 users
+=head3 users
 
     # Create a user
     my $response = $client->users->create({

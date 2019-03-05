@@ -19,9 +19,13 @@ Intercom::Client::User - User Resource class
 
 =head1 DESCRIPTION
 
-=head1 METHODS
+Core client lib for access to the /user resource in the API
 
-=head2 create (HashRef $user_data) -> Intercom::Resource::User|Intercom::Resource::ErrorList
+SEE ALSO: L<Users|https://developers.intercom.com/intercom-api-reference/reference#users>
+
+=head2 METHODS
+
+=head3 create (HashRef $user_data) -> Intercom::Resource::User|Intercom::Resource::ErrorList
 
     my $user = $client->users->create({
         email => 'test@test.com',
@@ -46,7 +50,7 @@ sub create {
     return $self->request_handler->post(URI->new('/users'), $user_data);
 }
 
-=head2 update (HasRef $user_data) -> Intercom::Resource::User|Intercom::Resource::ErrorList
+=head3 update (HasRef $user_data) -> Intercom::Resource::User|Intercom::Resource::ErrorList
 
     my $user = $client->users->update({
         email => 'test@test.com',
@@ -80,7 +84,7 @@ sub update {
     return $self->create($user_data);
 }
 
-=head2 list (Hashref $options) -> Intercom::Resource::UserList|Intercom::Resource::ErrorList
+=head3 list (Hashref $options) -> Intercom::Resource::UserList|Intercom::Resource::ErrorList
 
     my $users = $client->users->list({created_since => 365}) # all users in the last year
 
@@ -135,7 +139,7 @@ sub list {
     return $self->request_handler->get($uri);
 }
 
-=head2 get (HashRef $params) -> Intercom::Resource::User|Intercom::Resource::ErrorList
+=head3 get (HashRef $params) -> Intercom::Resource::User|Intercom::Resource::ErrorList
 
     my $user = $client->users->get({id => 1});
     my $user2 = $client->users->get({email => 'test@test.com'});
@@ -158,7 +162,7 @@ sub get {
     return $self->request_handler->get($self->_user_path($params));
 }
 
-=head2 scroll () -> Intercom::Resource::UserList|Intercom::Resource::ErrorList
+=head3 scroll () -> Intercom::Resource::UserList|Intercom::Resource::ErrorList
 
     my $users = $client->users->list({created_since => 365}) # all users in the last year
 
@@ -187,7 +191,7 @@ sub scroll {
     return $self->request_handler->get(URI->new('/users/scroll'));
 }
 
-=head2 archive (HashRef $params) -> Intercom::Resource::User|Intercom::Resource::ErrorList
+=head3 archive (HashRef $params) -> Intercom::Resource::User|Intercom::Resource::ErrorList
 
     my $user = $client->users->get({id => 1});
     my $user2 = $client->users->get({email => 'test@test.com'});
@@ -210,7 +214,7 @@ sub archive {
     return $self->request_handler->delete($self->_user_path($params));
 }
 
-=head1 permanently_delete (Str $id) -> HashRef|Intercom::Resource::ErrorList
+=head3 permanently_delete (Str $id) -> HashRef|Intercom::Resource::ErrorList
 
     my $return = $client->users->permanently_delete(1);
 
