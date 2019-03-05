@@ -14,42 +14,13 @@ use Intercom::Client::RequestHandler;
 
 use Intercom::Client::User;
 
-# Configuration params passed to request handler
-has auth_token => ( is => 'ro', required => 1 );
-has base_url   => ( is => 'ro', default  => sub { return URI->new('https://api.intercom.io'); } );
-has ua         => ( is  => 'ro', default  => sub { return LWP::UserAgent->new() } );
-
-# Handler to pack and unpack all request/responses
-has _request_handler => ( is => 'lazy' );
-sub _build__request_handler {
-    my ($self) = @_;
-
-    return Intercom::Client::RequestHandler->new({
-        base_url   => $self->base_url,
-        auth_token => $self->auth_token,
-        ua         => $self->ua
-    });
-}
-
-has users => ( is => 'rwp', builder => 1, reader => 'users' );
-sub _build_users {
-    return Intercom::Client::User->new({
-        request_handler => shift->_request_handler()
-    });
-}
-
-1;
-__END__
-
-=encoding utf-8
-
 =head1 NAME
 
 Intercom::Client - Perl SDK for the Intercom REST API
 
 =head1 SYNOPSIS
 
-    my $client = Intercom::Client->new({token => $auth_token});
+    my $client = Intercom::Client->new({token => $access_token});
 
     my $user = $client->users->fetch({email => $email})
 
@@ -59,23 +30,67 @@ Simple client library to interface with the Intercom REST API.
 
 Current supports L<v1.1|https://developers.intercom.com/intercom-api-reference/v1.1/reference>
 
+=head1 ATTRIBUTES
+
+=head2 base_url (URI)
+
+default - 'https://api.intercom.io'
+
+Base URL to use for all requests
+
+=head2 access_token (Str)
+
+B<required>
+
+The string auth token provided by Intercom
+
+SEE ALSO: L<Access Tokens|https://developers.intercom.com/building-apps/docs/authorization#section-access-tokens>
+
+=head2 ua
+
+default - LWP::UserAgent->new()
+
+User Agent to be used to make requests. Should provide a 'request' methods that accepts
+a L<HTTP::Request> object and returns a L<HTTP::Response> object.
+
+Returned response object must return the original request object via $response->request.
+
+=cut
+
+# Configuration params passed to request handler
+has access_token => ( is => 'ro', required => 1 );
+has base_url     => ( is => 'ro', default  => sub { return URI->new('https://api.intercom.io'); } );
+has ua           => ( is => 'ro', default  => sub { return LWP::UserAgent->new() } );
+
+# Handler to pack and unpack all request/responses
+has _request_handler => ( is => 'lazy' );
+sub _build__request_handler {
+    my ($self) = @_;
+
+    return Intercom::Client::RequestHandler->new({
+        base_url     => $self->base_url,
+        access_token => $self->access_token,
+        ua           => $self->ua
+    });
+}
+
 =head1 RESOURCES
 
 =head2 users
 
     # Create a user
     my $response = $client->users->create({
-        email => 'jayne@serenity.io',
-        custom_attributes: {
-            foo: 'bar'
+        email             => 'jayne@serenity.io',
+        custom_attributes => {
+            foo => 'bar'
         }
     });
 
     # Update a user
     my $response = $client->users->update({
-        email: 'jayne@serenity.io',
-        custom_attributes: {
-            foo: 'bar'
+        email             => 'jayne@serenity.io',
+        custom_attributes => {
+            foo => 'bar'
         }
     });
 
@@ -84,6 +99,18 @@ Provides an object representation of the /users/ API resources
 
 SEE ALSO:
     L<Intercom::Client::User>
+
+=cut
+
+has _users => ( is => 'lazy', reader => 'users' );
+sub _build__users {
+    return Intercom::Client::User->new({
+        request_handler => shift->_request_handler()
+    });
+}
+
+1;
+
 
 =head1 CONTRIBUTING
 
@@ -120,9 +147,12 @@ Most of the code here is 'inspired' heavily by the L<Node|https://github.com/int
 and L<Ruby|https://github.com/intercom/intercom-ruby> SDK implementations. It attempts to maintain
 as similar an interface as possible
 
+Thanks also to Broadbean Technology for the time to create this
+
 =head1 LICENSE
 
 Copyright (C) Mike Eve.
+Copyright (C) Broadbean Technology
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

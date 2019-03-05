@@ -64,15 +64,15 @@ sub auth_failure {
         });
 
         my $client = Intercom::Client->new({
-            auth_token => 'token',
+            access_token => 'token',
             ua         => $mock_ua,
         });
 
-        my $model = $call->($client);
+        my $resource = $call->($client);
 
-        is($model->type, 'error.list', 'ErrorList model returned');
+        is($resource->type, 'error.list', 'ErrorList resource returned');
         cmp_deeply(
-            $model->errors,
+            $resource->errors,
             [{
                 code => 'token_unauthorized',
                 message => 'Unauthorized'
@@ -113,7 +113,7 @@ sub connection_failure {
         });
 
         my $client = Intercom::Client->new({
-            auth_token => 'token',
+            access_token => 'token',
             ua         => $mock_ua,
         });
 

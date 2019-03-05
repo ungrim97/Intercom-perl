@@ -12,5 +12,5 @@ subtest 'require auth token' => sub {
         ok($_, 'Failed to create Client without auth token');
     };
 
-    ok(Intercom::Client->new(auth_token => 'token'), 'Client created successfully with token');
+    ok(Intercom::Client->new(access_token => 'token'), 'Client created successfully with token');
 };
