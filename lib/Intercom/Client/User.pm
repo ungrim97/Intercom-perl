@@ -1,6 +1,7 @@
 package Intercom::Client::User;
 
 use Moo;
+use Carp;
 use URI;
 use Intercom::Resource::ErrorList;
 

@@ -1,6 +1,6 @@
 use Test::Most tests => 1;
+use Test::MockObject;
 use Test::MockObject::Extends;
-use URI;
 
 use Intercom::Client::RequestHandler;
 
