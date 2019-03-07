@@ -72,7 +72,7 @@ has ua           => ( is => 'ro', required => 1 );
 # Authrization: Bearer $self->access_token
 # Intercom-Version: 1.1
 
-has _headers    => ( is => 'ro', lazy => 1 );
+has _headers    => ( is => 'lazy' );
 sub _build__headers {
     my ($self) = @_;
 

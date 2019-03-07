@@ -82,6 +82,64 @@ sub auth_failure {
     };
 }
 
+=head2 headers (function $call) -> undef
+
+    SharedTests::Request::headers(sub {
+        return shift->users->get({id => 1})
+    })
+
+Tests that the functionality of $call would generate the correct headers
+for the request
+
+Takes a function ref that will recieve a mocked Intercom::Client object
+and should return the result of a resource call (i.e $mock_client->users->get())
+
+=cut
+
+sub headers {
+    my ($call) = @_;
+
+    subtest 'headers' => sub {
+        my $mock_ua = LWP::UserAgent->new();
+        my $expected_headers = {
+            'Authorization'    => 'Bearer token',
+            'Content-Type'     => 'application/json',
+            'Accept'           => 'application/json',
+            'Intercom-Version' => '1.1',
+            'User-Agent'       => $mock_ua->agent
+        };
+
+        $mock_ua->map(
+            sub {
+                my ($request) = @_;
+
+                cmp_deeply({$request->headers->flatten}, $expected_headers, 'Headers generated as anticipated');
+
+                return 1;
+            },
+            sub {
+                my ($request) = @_;
+
+                my $response = HTTP::Response->new(
+                    '401',
+                    'Unauthorized',
+                    [ 'Content-type' => 'application/json' ],
+                    '{"type":"error.list","request_id":"0008pcfj9dh1eig57qv0","errors":[{"code":"token_unauthorized","message":"Unauthorized"}]}'
+                );
+                $response->request($request);
+                return $response;
+            }
+        );
+
+        my $client = Intercom::Client->new({
+            access_token => 'token',
+            ua           => $mock_ua,
+        });
+
+        $call->($client);
+    };
+}
+
 =head2 connection_failure (function $call) -> undef
 
 Attempts to test the functionallity of $call when run on a client that
@@ -99,7 +157,7 @@ and should return the result of a resource call (i.e $mock_client->users->get())
 sub connection_failure {
     my ($call) = @_;
 
-    subtest 'connectkion failure' => sub {
+    subtest 'connection failure' => sub {
         plan tests => 1;
 
         my $mock_ua = LWP::UserAgent->new();
@@ -121,7 +179,6 @@ sub connection_failure {
 
         is($error, undef, 'No error');
     };
-
 }
 
 1;

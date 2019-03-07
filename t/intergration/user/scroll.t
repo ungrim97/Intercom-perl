@@ -1,13 +1,17 @@
 use lib 't/lib';
 
 use JSON;
-use Test::Most tests => 4;
+use Test::Most tests => 5;
 use Test::MockObject;
 use Test::Mock::LWP::Dispatch;
 use SharedTests::Request;
 use SharedTests::User;
 
 use Intercom::Client;
+
+SharedTests::Request::headers(sub {
+    return shift->users->scroll({email => 'test@test.com'});
+});
 
 SharedTests::Request::auth_failure(sub {
     return shift->users->scroll({email => 'test@test.com'});
