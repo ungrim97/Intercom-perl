@@ -245,6 +245,12 @@ SEE ALSO: L<Archive a User|https://developers.intercom.com/intercom-api-referenc
 sub archive {
     my ($self, $params) = @_;
 
+    unless ($params->{id} || $params->{email} || $params->{user_id}) {
+        return Intercom::Resource::ErrorList->new(errors => [{
+            code => 'parameter_not_found',
+            message => 'Search requires one of `email` or `user_id`'
+        }]);
+    }
     return $self->request_handler->delete($self->_user_path($params));
 }
 

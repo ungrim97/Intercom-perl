@@ -28,7 +28,32 @@ This module contains shared tests as they relate to the handling of specific req
 
 =head2 FUNCTIONS
 
-=head2 auth_failure (function $call) -> undef
+=head3 all_tests (function $call) -> undef
+
+    SharedTests::Request::all(sub {
+        return shift->users->get({id => 1});
+    });
+
+Run all of the SharedTests::Request tests using the same
+call
+
+=cut
+
+sub all_tests {
+    my ($call) = @_;
+
+    subtest 'All SharedTests::Request' => sub {
+        auth_failure($call);
+        headers($call);
+        connection_failure($call);
+    };
+}
+
+=head3 auth_failure (function $call) -> undef
+
+    SharedTests::Request::auth_failure(sub {
+        return shift->users->get({id => 1});
+    });
 
 Attempts to test the functionallity of $call when run on a client that
 has an invalid auth token
@@ -36,9 +61,6 @@ has an invalid auth token
 Takes a function ref that will recieve a mocked Intercom::Client object
 and should return the result of a resource call (i.e $mock_client->users->get())
 
-    SharedTests::Request::auth_failure(sub {
-        return shift->users->get({id => 1});
-    });
 
 =cut
 
@@ -82,7 +104,7 @@ sub auth_failure {
     };
 }
 
-=head2 headers (function $call) -> undef
+=head3 headers (function $call) -> undef
 
     SharedTests::Request::headers(sub {
         return shift->users->get({id => 1})
@@ -140,7 +162,7 @@ sub headers {
     };
 }
 
-=head2 connection_failure (function $call) -> undef
+=head3 connection_failure (function $call) -> undef
 
 Attempts to test the functionallity of $call when run on a client that
 recieves a 502 response
@@ -179,6 +201,56 @@ sub connection_failure {
 
         is($error, undef, 'No error');
     };
+}
+
+=head3 unrecognised_type (Function $code) -> undef
+
+    SharedTests::Request::unrecognised_type(sub {
+        return shift->users->get({id => 1});
+    });
+
+Attempts to test the functionallity of $call when it recieves
+a resource of an unknown type
+
+Takes a function ref that will recieve a mocked Intercom::Client object
+and should throw an error
+
+=cut
+
+sub unrecognised_type {
+    my ($call) = @_;
+
+    subtest 'unrecognised_type' => sub {
+        plan tests => 1;
+
+        my $mock_ua = LWP::UserAgent->new();
+        $mock_ua->map(qr/^.*$/ => sub {
+            my ($request) = @_;
+
+            my $response = HTTP::Response->new(
+                200,
+                'OK',
+                [ 'Content-type' => 'application/json' ],
+                '{"type": "unkown_type", "data": "random_data"}'
+            );
+
+            $response->request($request);
+
+            return $response;
+        });
+
+        my $client = Intercom::Client->new({
+            access_token => 'token',
+            ua         => $mock_ua,
+        });
+
+        throws_ok(
+            sub { $call->($client); },
+            qr/Unable to find resource for \[unknown_type\]/,
+            'Threw error for unknown type'
+        );
+    };
+
 }
 
 1;

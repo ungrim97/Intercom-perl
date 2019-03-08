@@ -10,16 +10,16 @@ use SharedTests::User;
 use Intercom::Client;
 
 SharedTests::Request::all_tests(sub {
-    return shift->users->list({email => 'test@test.com'});
+    return shift->users->get(1);
 });
 
-subtest 'List users' => sub {
+subtest 'via Email' => sub {
     plan tests => 1;
 
     my $user_data = user_data();
 
     my $mock_ua = LWP::UserAgent->new();
-    $mock_ua->map(qr#/users$# => sub {
+    $mock_ua->map(qr#/users\?email=test%40test.com$# => sub {
         my ($request) = @_;
         my $response = HTTP::Response->new(
             '200',
@@ -37,64 +37,17 @@ subtest 'List users' => sub {
         ua         => $mock_ua
     });
 
-    my $userlist = $client->users->list();
-    SharedTests::User::test_resource_generation($userlist->users->[0], $user_data->{users}[0]);
+    my $resource = $client->users->search({email => 'test@test.com'});
+    SharedTests::User::test_resource_generation($resource->users->[0], $user_data->{users}[0]);
 };
 
-subtest 'pagination' => sub {
-    plan tests => 2;
-
-    my $user_data = user_data();
-    my $user_data2 = user_data();
-    delete $user_data2->{pages}{next};
-    $user_data2->{users}[0]{id} = '530370b477ad7120002d';
-
-    my @data = ($user_data, $user_data2);
-
-    my $mock_ua = LWP::UserAgent->new();
-    $mock_ua->map(qr#/users$# => sub {
-        my ($request) = @_;
-        my $response = HTTP::Response->new(
-            '200',
-            'OK',
-            [ 'Content-Type' => 'application/json' ],
-            JSON::encode_json($user_data)
-        );
-
-        $response->request($request);
-        return $response;
-    });
-    $mock_ua->map(qr#/users\?per_page=1&page=2$# => sub {
-        my ($request) = @_;
-        my $response = HTTP::Response->new(
-            '200',
-            'OK',
-            [ 'Content-Type' => 'application/json' ],
-            JSON::encode_json($user_data2)
-        );
-
-        $response->request($request);
-        return $response;
-    });
-
-    my $client = Intercom::Client->new({
-        access_token => 'test',
-        ua         => $mock_ua
-    });
-
-    my $userlist = $client->users->list();
-    do {
-        SharedTests::User::test_resource_generation($userlist->users->[0], shift(@data)->{users}[0]);
-    } while ($userlist = $userlist->pages->get_next());
-};
-
-subtest 'with params' => sub {
+subtest 'via user_id' => sub {
     plan tests => 1;
 
     my $user_data = user_data();
 
     my $mock_ua = LWP::UserAgent->new();
-    $mock_ua->map(qr#/users\?per_page=1$# => sub {
+    $mock_ua->map(qr#/users\?user_id=22$# => sub {
         my ($request) = @_;
         my $response = HTTP::Response->new(
             '200',
@@ -109,22 +62,28 @@ subtest 'with params' => sub {
 
     my $client = Intercom::Client->new({
         access_token => 'test',
-        ua         => $mock_ua
+        ua          => $mock_ua
     });
 
-    my $userlist = $client->users->list({per_page => 1});
-    SharedTests::User::test_resource_generation($userlist->users->[0], $user_data->{users}[0]);
+    my $resource = $client->users->search({user_id => 22});
+    SharedTests::User::test_resource_generation($resource->users->[0], $user_data->{users}[0]);
+};
+
+subtest 'Missing param' => sub {
+    my $mock_ua = LWP::UserAgent->new();
+    my $client = Intercom::Client->new({
+        access_token => 'test',
+        ua           => $mock_ua
+    });
+
+    my $errors = $client->users->get();
+
+    is($errors->errors->[0]{code}, 'parameter_not_found', 'Error returned');
 };
 
 sub user_data {
 	return {
-        type        => 'user.list',
-        total_count => 2,
-        pages => {
-            type        => 'page',
-            next        => 'https://api.intercom.io/users?per_page=1&page=2',
-            total_pages => 2,
-        },
+        type => 'user.list',
         users => [{
             type                     => "user",
             id                       => '530370b477ad7120001d',
@@ -149,9 +108,9 @@ sub user_data {
             utm_source               => undef,
             utm_term                 => undef,
             custom_attributes        => {
-                paid_subscriber => JSON::true,
-                monthly_spend   => 155.5,
-                team_mates      => 1
+                paid_subscriber        => JSON::true,
+                monthly_spend          => 155.5,
+                team_mates             => 1
             },
             avatar => {
                 type      => 'avatar',
@@ -169,37 +128,37 @@ sub user_data {
                 region_name    => 'Dublin',
                 timezone       => 'Europe/Dublin'
             },
-            social_profiles => {
-                type => 'social_profile.list',
-                social_profiles  => [{
-                    type     => 'social_profile',
-                    name     => 'twitter',
-                    id       => '1235d3213',
-                    username => 'th1sland',
-                    url      => 'http://twitter.com/th1sland'
-                }]
+            social_profiles   => {
+                type            => 'social_profile.list',
+                social_profiles => [{
+                        type        => 'social_profile',
+                        name        => 'twitter',
+                        id           => '1235d3213',
+                        username    => 'th1sland',
+                        url         => 'http://twitter.com/th1sland'
+                    }]
             },
             companies   => {
                 type      => 'company.list',
                 companies => [{
-                    type => 'company',
-                    id  => '530370b477ad7120001e'
-                }]
+                        type => 'company',
+                        id  => '530370b477ad7120001e'
+                    }]
             },
             segments => {
                 type     => 'segment.list',
                 segments => [{
-                    type => 'segment',
-                    id => '5310d8e7598c9a0b24000002'
-                }]
+                        type => 'segment',
+                        id => '5310d8e7598c9a0b24000002'
+                    }]
             },
             tags => {
                 type => 'tag.list',
                 tags => [{
-                    type => 'tag',
-                    id => '202'
-                }]
+                        type => 'tag',
+                        id => '202'
+                    }]
             }
-        }]
+        }],
     };
 }

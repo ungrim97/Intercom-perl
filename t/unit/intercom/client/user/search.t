@@ -1,4 +1,4 @@
-use Test::Most tests => 2;
+use Test::Most tests => 3;
 use Test::MockObject;
 use Test::MockObject::Extends;
 
@@ -52,4 +52,23 @@ subtest 'By user_id' => sub {
     });
 
     is($user->search({user_id => 2}), 'test', 'Correct response returned');
+};
+
+subtest 'Missing params' => sub {
+    plan tests => 1;
+
+    my $request_handler = Test::MockObject->new();
+    $request_handler->mock('get', sub {
+        fail('Called RH->get');
+    });
+
+    my $user = Test::MockObject::Extends->new(
+        Intercom::Client::User->new(request_handler => $request_handler)
+    );
+
+    is(
+        $user->search()->errors->[0]{code},
+        'parameter_not_found',
+        'Correct response returned'
+    );
 };

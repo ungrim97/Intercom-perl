@@ -1,7 +1,7 @@
 use lib 't/lib';
 
 use JSON;
-use Test::Most tests => 4;
+use Test::Most tests => 3;
 use Test::MockObject;
 use Test::Mock::LWP::Dispatch;
 use SharedTests::Request;
@@ -9,15 +9,7 @@ use SharedTests::User;
 
 use Intercom::Client;
 
-SharedTests::Request::headers(sub {
-    return shift->users->get(1);
-});
-
-SharedTests::Request::auth_failure(sub {
-    return shift->users->get(1);
-});
-
-SharedTests::Request::connection_failure(sub {
+SharedTests::Request::all_tests(sub {
     return shift->users->get(1);
 });
 
@@ -47,6 +39,18 @@ subtest 'via ID' => sub {
 
     my $resource = $client->users->get(1);
     SharedTests::User::test_resource_generation($resource, $user_data);
+};
+
+subtest 'Missing param' => sub {
+    my $mock_ua = LWP::UserAgent->new();
+    my $client = Intercom::Client->new({
+        access_token => 'test',
+        ua           => $mock_ua
+    });
+
+    my $errors = $client->users->get();
+
+    is($errors->errors->[0]{code}, 'parameter_not_found', 'Error returned');
 };
 
 sub user_data {
