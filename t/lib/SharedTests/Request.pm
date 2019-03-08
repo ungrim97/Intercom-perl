@@ -46,6 +46,7 @@ sub all_tests {
         auth_failure($call);
         headers($call);
         connection_failure($call);
+        unrecognised_type($call);
     };
 }
 
@@ -231,7 +232,7 @@ sub unrecognised_type {
                 200,
                 'OK',
                 [ 'Content-type' => 'application/json' ],
-                '{"type": "unkown_type", "data": "random_data"}'
+                '{"type": "unknown_type", "data": "random_data"}'
             );
 
             $response->request($request);
@@ -246,7 +247,7 @@ sub unrecognised_type {
 
         throws_ok(
             sub { $call->($client); },
-            qr/Unable to find resource for \[unknown_type\]/,
+            qr/^Unable to find resource for \[unknown_type\]/,
             'Threw error for unknown type'
         );
     };

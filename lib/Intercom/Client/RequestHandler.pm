@@ -393,7 +393,8 @@ sub _construct_scrollable_paginator {
         my ($self, $type) = @_;
 
         return try {
-            return use_module('Intercom::Resource::'.$type_map->{$type});
+            my $mapped_type = $type_map->{$type} || die 'No Type class for $type';
+            return use_module('Intercom::Resource::'.$mapped_type);
         } catch {
             confess "Unable to find resource for [$type]"
         };
