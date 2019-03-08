@@ -1,22 +1,14 @@
 use lib 't/lib';
 
 use JSON;
-use Test::Most tests => 4;
+use Test::Most tests => 2;
 use Test::MockObject;
 use Test::Mock::LWP::Dispatch;
 use SharedTests::Request;
 
 use Intercom::Client;
 
-SharedTests::Request::headers(sub {
-    return shift->users->permanently_delete({email => 'test@test.com'});
-});
-
-SharedTests::Request::auth_failure(sub {
-    return shift->users->permanently_delete({email => 'test@test.com'});
-});
-
-SharedTests::Request::connection_failure(sub {
+SharedTests::Request::all_tests(sub {
     return shift->users->permanently_delete({email => 'test@test.com'});
 });
 

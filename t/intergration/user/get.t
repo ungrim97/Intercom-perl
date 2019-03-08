@@ -1,7 +1,7 @@
 use lib 't/lib';
 
 use JSON;
-use Test::Most tests => 6;
+use Test::Most tests => 3;
 use Test::MockObject;
 use Test::Mock::LWP::Dispatch;
 use SharedTests::Request;
@@ -9,16 +9,8 @@ use SharedTests::User;
 
 use Intercom::Client;
 
-SharedTests::Request::headers(sub {
-    return shift->users->get({email => 'test@test.com'});
-});
-
-SharedTests::Request::auth_failure(sub {
-    return shift->users->get({email => 'test@test.com'});
-});
-
-SharedTests::Request::connection_failure(sub {
-    return shift->users->get({email => 'test@test.com'});
+SharedTests::Request::all_tests(sub {
+    return shift->users->get(1);
 });
 
 subtest 'via ID' => sub {
@@ -45,62 +37,20 @@ subtest 'via ID' => sub {
         ua         => $mock_ua
     });
 
-    my $resource = $client->users->get({id => 1});
+    my $resource = $client->users->get(1);
     SharedTests::User::test_resource_generation($resource, $user_data);
 };
 
-subtest 'via Email' => sub {
-    plan tests => 1;
-
-    my $user_data = user_data();
-
+subtest 'Missing param' => sub {
     my $mock_ua = LWP::UserAgent->new();
-    $mock_ua->map(qr#/users\?email=test%40test\.com$# => sub {
-        my ($request) = @_;
-        my $response = HTTP::Response->new(
-            '200',
-            'OK',
-            [ 'Content-Type' => 'application/json' ],
-            JSON::encode_json($user_data)
-        );
-
-        $response->request($request);
-        return $response;
-    });
-
-    my $client = Intercom::Client->new({
-        access_token => 'test',
-        ua         => $mock_ua
-    });
-
-    SharedTests::User::test_resource_generation($client->users->get({email => 'test@test.com'}), $user_data);
-};
-
-subtest 'via UserID' => sub {
-    plan tests => 1;
-
-    my $user_data = user_data();
-
-    my $mock_ua = LWP::UserAgent->new();
-    $mock_ua->map(qr#/users\?user_id=23134# => sub {
-        my ($request) = @_;
-        my $response = HTTP::Response->new(
-            '200',
-            'OK',
-            [ 'Content-Type' => 'application/json' ],
-            JSON::encode_json($user_data)
-        );
-
-        $response->request($request);
-        return $response;
-    });
-
     my $client = Intercom::Client->new({
         access_token => 'test',
         ua           => $mock_ua
     });
 
-    SharedTests::User::test_resource_generation($client->users->get({user_id => 23134}), $user_data);
+    my $errors = $client->users->get();
+
+    is($errors->errors->[0]{code}, 'parameter_not_found', 'Error returned');
 };
 
 sub user_data {

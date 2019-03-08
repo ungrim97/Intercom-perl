@@ -15,7 +15,13 @@ Intercom::Client::User - User Resource class
 
 =head1 SYNOPSIS
 
-    my $user = $client->users->get({id => 1});
+    my $users = $client->users->search({email => 'test1@test.com});
+    my $user = $users->users->[0];
+
+    $user = $client->users->update({
+        id    => $user->id,
+        email => 'test2@test.com'
+    });
 
 =head1 DESCRIPTION
 
@@ -139,16 +145,11 @@ sub list {
     return $self->request_handler->get($uri);
 }
 
-=head3 get (HashRef $params) -> Intercom::Resource::User|Intercom::Resource::ErrorList
+=head3 get (Str $id) -> Intercom::Resource::User|Intercom::Resource::ErrorList
 
-    my $user = $client->users->get({id => 1});
-    my $user2 = $client->users->get({email => 'test@test.com'});
-    my $user3 = $client->users->get({user_id => '12333'});
+    my $user = $client->users->get(1);
 
-Retrieve a user based on their primary intercom ID ($params->{id})
-
-alternatively retrieve a user as identified by their email ($params->{email})
-or custom user_id ($params->{user_id})
+Retrieve a user based on their primary intercom ID ($id)
 
 Returns either an instance of an Intercom::Resource::User or an instance of an Intercom::Resource::ErrorList
 
@@ -157,8 +158,41 @@ SEE ALSO: L<View a User|https://developers.intercom.com/intercom-api-reference/v
 =cut
 
 sub get {
+    my ($self, $id) = @_;
+
+    unless ($id) {
+        return Intercom::Resource::ErrorList->new(errors => [{
+            code => 'parameter_not_found',
+            message => 'Get requires an `id` parameter'
+        }]);
+    }
+
+    return $self->request_handler->get($self->_user_path({id => $id}));
+}
+
+=head3 search (HashRef $params) -> Intercom::Resource::UserList|Intercom::Resource::ErrorList
+
+    my $user2 = $client->users->search({email => 'test@test.com'});
+    my $user3 = $client->users->search({user_id => '12333'});
+
+Search for users as identified by an email ($params->{email})
+or custom user_id ($params->{user_id})
+
+Returns either an instance of an Intercom::Resource::UserList or an instance of an Intercom::Resource::ErrorList
+
+SEE ALSO: L<Search Users|https://developers.intercom.com/intercom-api-reference/v1.1/reference#view-a-user>
+
+=cut
+
+sub search {
     my ($self, $params) = @_;
 
+    unless ($params->{email} || $params->{user_id}) {
+        return Intercom::Resource::ErrorList->new(errors => [{
+            code => 'parameter_not_found',
+            message => 'Search requires one of `email` or `user_id`'
+        }]);
+    }
     return $self->request_handler->get($self->_user_path($params));
 }
 
@@ -211,6 +245,12 @@ SEE ALSO: L<Archive a User|https://developers.intercom.com/intercom-api-referenc
 sub archive {
     my ($self, $params) = @_;
 
+    unless ($params->{id} || $params->{email} || $params->{user_id}) {
+        return Intercom::Resource::ErrorList->new(errors => [{
+            code => 'parameter_not_found',
+            message => 'Search requires one of `email` or `user_id`'
+        }]);
+    }
     return $self->request_handler->delete($self->_user_path($params));
 }
 
