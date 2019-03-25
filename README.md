@@ -9,7 +9,7 @@ Intercom::Client - Perl SDK for the Intercom REST API
 
     my $client = Intercom::Client->new({token => $access_token});
 
-    my $user = $client->users->get({email => $email});
+    my $user = $client->users->search({email => $email});
 
 # DESCRIPTION
 

@@ -75,6 +75,9 @@
    },
    "version" : "0.01",
    "x_authority" : "cpan:MRF",
+   "x_contributors" : [
+      "Mike <mike.eve@broadbean.com>"
+   ],
    "x_serialization_backend" : "JSON::PP version 2.27400_02",
    "x_static_install" : 1
 }
