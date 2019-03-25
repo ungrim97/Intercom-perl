@@ -1,3 +1,4 @@
+[![Build Status](https://circleci.com/gh/ungrim97/intercom-perl.svg)](https://circleci.com/gh/ungrim97/intercom-perl) [![Coverage Status](http://codecov.io/github/ungrim97/intercom-perl/coverage.svg?branch=master)](https://codecov.io/github/ungrim97/intercom-perl?branch=master)
 # NAME
 
 Intercom::Client - Perl SDK for the Intercom REST API

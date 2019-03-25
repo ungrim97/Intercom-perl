@@ -2,6 +2,10 @@ Revision history for Perl extension Intercom-Perl
 
 {{$NEXT}}
 
+0.02 2019-03-25T11:28:11Z
+
+    - Updated README
+
 0.01 2019-03-25T11:24:26Z
 
     - Add User Resource Handler

@@ -73,7 +73,7 @@
          "web" : "https://github.com/ungrim97/intercom-perl"
       }
    },
-   "version" : "0.01",
+   "version" : "0.02",
    "x_authority" : "cpan:MRF",
    "x_contributors" : [
       "Mike <mike.eve@broadbean.com>"
