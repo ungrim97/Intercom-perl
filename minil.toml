@@ -1,5 +1,4 @@
 name      = "Intercom-Client"
-badges    = ["circleci", "codecov"]
 authority = "cpan:MRF"
 
 module_maker   = "ModuleBuildTiny"
