@@ -110,6 +110,39 @@ sub get {
     return $self->request_handler->get($self->_company_path({id => $id}));
 }
 
+=head3 find (HashRef $params) -> Intercom::Resource::Company|Intercom::Resource::ErrorList
+
+    my $company = $client->companies->find({company_id => 1234});
+
+Retrieve a company based on their company_id ($params->{company_id}), or the
+name ($params->{name})
+
+Returns either an instance of an Intercom::Resource::Company or an instance of
+an Intercom::Resource::ErrorList
+
+SEE ALSO: L<View a Company|https://developers.intercom.com/intercom-api-reference/v1.1/reference#view-a-company>
+
+=cut
+
+sub find {
+    my ($self, $params) = @_;
+
+    unless ($params->{company_id} || $params->{name}) {
+        return Intercom::Resource::ErrorList->new(errors => [{
+            code    => 'parameter_not_found',
+            message => 'Find requires one of `company_id`, or `name`'
+        }]);
+    }
+
+    if ($params->{company_id} && $params->{name}) {
+        return Intercom::Resource::ErrorList->new(errors => [{
+            code    => 'parameter_invalid',
+            message => 'Find requires one of `company_id`, or `name`'
+        }]);
+    }
+    return $self->request_handler->get($self->_company_path($params));
+}
+
 =cut
 
 sub _company_path {
@@ -134,7 +167,8 @@ sub _company_path {
         $uri->query_form(tag_id => $tag_id);
         return $uri
     }
-    elsif (my $segment_id = $params->{segment_id}) {
+
+    if (my $segment_id = $params->{segment_id}) {
         $uri->query_form(segment_id => $segment_id);
         return $uri
     }
