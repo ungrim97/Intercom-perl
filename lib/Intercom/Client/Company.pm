@@ -30,6 +30,30 @@ Core client lib for access to the /company resource in the API
 
 SEE ALSO: L<Companys|https://developers.intercom.com/intercom-api-reference/reference#companies>
 
+=head2 METHODS
+
+=head3 create (HashRef $company_data) -> Intercom::Resource::Company|Intercom::Resource::ErrorList
+
+    my $company = $client->companies->create({
+        company_id => 366,
+        name       => 'test comp'
+    });
+
+Create a new company with the provided $company_data.
+
+Will return a new instance of a Intercom::Resource::Company or an instance of
+an Intercom::Resource::ErrorList
+
+SEE ALSO: L<Create Companys|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-company>
+
+=cut
+
+sub create {
+    my ($self, $company_data) = @_;
+
+    return $self->request_handler->post(URI->new('/companies'), $company_data);
+}
+
 =cut
 
 sub _company_path {
