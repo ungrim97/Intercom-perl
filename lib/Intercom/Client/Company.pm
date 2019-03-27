@@ -54,6 +54,36 @@ sub create {
     return $self->request_handler->post(URI->new('/companies'), $company_data);
 }
 
+=head3 update (HasRef $company_data) -> Intercom::Resource::Company|Intercom::Resource::ErrorList
+
+    my $company = $client->companies->update({
+        company_id => 366,
+        name       => 'test comp'
+    });
+
+Update an existing company with the provided $company_data. Company will be
+matched by the 'company_id' fields in the data
+
+Will return a new instance of a Intercom::Resource::Company or an instance of
+an Intercom::Resource::ErrorList
+
+SEE ALSO: L<Update Companys|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-company>
+
+=cut
+
+sub update {
+    my ($self, $company_data) = @_;
+
+    unless ($company_data->{company_id}) {
+        return Intercom::Resource::ErrorList->new(errors => [{
+            code    => 'parameter_not_found',
+            message => 'Update requires `company_id`'
+        }]);
+    }
+
+    return $self->create($company_data);
+}
+
 =cut
 
 sub _company_path {
