@@ -143,6 +143,54 @@ sub find {
     return $self->request_handler->get($self->_company_path($params));
 }
 
+=head3 list (Hashref $options) -> Intercom::Resource::CompanyList|Intercom::Resource::ErrorList
+
+    my $companies = $client->companies->list({page => 3}) # 3rd page of companies
+
+    do {
+        confess 'Error' if $companies->type eq 'ErrorList';
+
+        for my $company ($companies->companies){
+            ...
+        }
+    } while ($companies = $companies->page->next())
+
+Retrieve a list of companies. by default this will fetch the last 50 created
+companies. The returned L<Intercom::Resource::CompanyList> object also contains
+a L<page object|Intercom::Resource::Page> which can be used to fetch more
+companies in a paginated fashion
+
+Available options are:
+
+=over
+
+=item *
+
+page - numeric page to retrieve
+
+=item *
+
+per_page - number of companies to include per page (default 50, max 60)
+
+=item *
+
+order - Direction to sort the companies via the sort value (default desc)
+
+=back
+
+SEE ALSO: L<List Companiess|https://developers.intercom.com/intercom-api-reference/v1.1/reference#list-companies>
+
+=cut
+
+sub list {
+    my ($self, $options) = @_;
+
+    my $uri = URI->new('/companies');
+    $uri->query_form($options);
+
+    return $self->request_handler->get($uri);
+}
+
 =cut
 
 sub _company_path {
