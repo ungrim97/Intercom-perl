@@ -84,6 +84,32 @@ sub update {
     return $self->create($company_data);
 }
 
+=head3 get (Str $id) -> Intercom::Resource::Company|Intercom::Resource::ErrorList
+
+    my $company = $client->companies->get(1);
+
+Retrieve a company based on their primary intercom ID ($id)
+
+Returns either an instance of an Intercom::Resource::Company or an instance of
+an Intercom::Resource::ErrorList
+
+SEE ALSO: L<View a Company|https://developers.intercom.com/intercom-api-reference/v1.1/reference#view-a-company>
+
+=cut
+
+sub get {
+    my ($self, $id) = @_;
+
+    unless ($id) {
+        return Intercom::Resource::ErrorList->new(errors => [{
+            code    => 'parameter_not_found',
+            message => 'Get requires an `id` parameter'
+        }]);
+    }
+
+    return $self->request_handler->get($self->_company_path({id => $id}));
+}
+
 =cut
 
 sub _company_path {
