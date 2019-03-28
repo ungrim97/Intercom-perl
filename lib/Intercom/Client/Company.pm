@@ -267,6 +267,22 @@ an Intercom::Resource::ErrorList
 
 =cut
 
+sub users {
+    my ($self, $company_id) = @_;
+
+    unless ($company_id) {
+        return Intercom::Resource::ErrorList->new(errors => [{
+            code    => 'parameter_not_found',
+            message => 'Users requires `company_id`'
+        }]);
+    }
+
+    my $users_url = $self->_company_path({company_id => $company_id});
+    $users_url->query_param_append('type' => 'users');
+
+    return $self->request_handler->get($users_url);
+}
+
 sub _company_path {
     my ($self, $params) = @_;
 
