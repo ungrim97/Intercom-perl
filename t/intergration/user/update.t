@@ -17,7 +17,7 @@ subtest 'Missing param' => sub {
     plan tests => 1;
 
     my $mock_ua = LWP::UserAgent->new();
-    $mock_ua->map(qr#/users$#, sub { fail('Made HTTP Request'); });
+    $mock_ua->map(qr#^.*$#, sub { fail('Made HTTP Request'); });
 
     my $client = Intercom::Client->new({
         access_token => 'test',
