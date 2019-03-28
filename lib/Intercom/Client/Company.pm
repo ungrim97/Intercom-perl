@@ -226,6 +226,45 @@ sub search {
     return $self->request_handler->get($self->_company_path($params));
 }
 
+=head3 scroll () -> Intercom::Resource::CompanyList|Intercom::Resource::ErrorList
+
+    my $companies = $client->companies->list({created_since => 365}) # all companies in the last year
+
+    do {
+        confess 'Error' if $companies->type eq 'ErrorList';
+
+        for my $company ($companies->companies){
+            ...
+        }
+    } while ($companies = $companies->page->next())
+
+Efficiently retrieve a list of companies. by default this will fetch the last
+50 created companies. The returned L<Intercom::Resource::CompanyList> object
+also contains a L<page object|Intercom::Resource::Page> which can be used to
+fetch more companies in a paginated fashion
+
+NOTE: Scrolled company lists can only be paged to the next page. There is no
+ability to return to a previous page
+
+SEE ALSO: L<Scroll companies|https://developers.intercom.com/intercom-api-reference/v1.1/reference#iterating-over-all-companies>
+
+=cut
+
+sub scroll {
+    my ($self) = @_;
+
+    return $self->request_handler->get(URI->new('/companies/scroll'));
+}
+
+=head3 users () -> Intercom::Resource::UserList|Intercom::Resource::ErrorList
+
+    my $users = $client->companies->users($company_id);
+
+Retrieve a list of all users for a specific company_id
+
+Returns either an instance of an Intercom::Resource::UserList or an instance of
+an Intercom::Resource::ErrorList
+
 =cut
 
 sub _company_path {
