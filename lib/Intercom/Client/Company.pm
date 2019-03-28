@@ -278,7 +278,7 @@ sub users {
     }
 
     my $users_url = $self->_company_path({company_id => $company_id});
-    $users_url->query_param_append('type' => 'users');
+    $users_url->query_param_append('type' => 'user');
 
     return $self->request_handler->get($users_url);
 }

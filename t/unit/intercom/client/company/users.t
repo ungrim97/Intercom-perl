@@ -41,7 +41,7 @@ subtest 'Request' => sub {
         $request_handler->mock(get => sub {
             my ($self, $uri) = @_;
 
-            is($uri->as_string, '/companies?company_id=1234&type=users', 'URI passed to RH->get');
+            is($uri->as_string, '/companies?company_id=1234&type=user', 'URI passed to RH->get');
             return 'test'
         });
         $companies->mock(_company_path => sub {
