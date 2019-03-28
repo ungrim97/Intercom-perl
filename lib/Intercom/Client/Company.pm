@@ -191,6 +191,41 @@ sub list {
     return $self->request_handler->get($uri);
 }
 
+=head3 search (HashRef $params) -> Intercom::Resource::CompanyList|Intercom::Resource::ErrorList
+
+    my $companies3 = $client->companies->search({tag_id => '12333'});
+    my $companies4 = $client->companies->search({segment_id => '12333'});
+
+Search for companies as identified by a tag_id ($params->{tag_id}), or a
+segment_id ($params->{segment_id})
+
+Returns either an instance of an Intercom::Resource::CompanyList or an instance
+of an Intercom::Resource::ErrorList
+
+SEE ALSO: L<Search by Tag|https://developers.intercom.com/intercom-api-reference/v1.1/reference#list-by-tag-or-segment>
+
+=cut
+
+sub search {
+    my ($self, $params) = @_;
+
+    unless ( $params->{tag_id} || $params->{segment_id} ) {
+        return Intercom::Resource::ErrorList->new(errors => [{
+            code => 'parameter_not_found',
+            message => 'Search requires one of `tag_id`, or `segment_id`'
+        }]);
+    }
+
+    if ( $params->{tag_id} && $params->{segment_id} ) {
+        return Intercom::Resource::ErrorList->new(errors => [{
+            code => 'parameter_invalid',
+            message => 'Search requires one of `tag_id`, or `segment_id`'
+        }]);
+    }
+
+    return $self->request_handler->get($self->_company_path($params));
+}
+
 =cut
 
 sub _company_path {
