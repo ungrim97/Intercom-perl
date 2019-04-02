@@ -28,7 +28,7 @@ Intercom::Client::Company - Company Resource class
 
 Core client lib for access to the /company resource in the API
 
-SEE ALSO: L<Companys|https://developers.intercom.com/intercom-api-reference/reference#companies>
+SEE ALSO: L<Companies|https://developers.intercom.com/intercom-api-reference/reference#companies>
 
 =head2 METHODS
 
@@ -54,7 +54,7 @@ sub create {
     return $self->request_handler->post(URI->new('/companies'), $company_data);
 }
 
-=head3 update (HasRef $company_data) -> Intercom::Resource::Company|Intercom::Resource::ErrorList
+=head3 update (HashRef $company_data) -> Intercom::Resource::Company|Intercom::Resource::ErrorList
 
     my $company = $client->companies->update({
         company_id => 366,
@@ -67,7 +67,7 @@ matched by the 'company_id' fields in the data
 Will return a new instance of a Intercom::Resource::Company or an instance of
 an Intercom::Resource::ErrorList
 
-SEE ALSO: L<Update Companys|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-company>
+SEE ALSO: L<Update Companies|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-company>
 
 =cut
 

@@ -43,7 +43,8 @@ SEE ALSO: L<Users|https://developers.intercom.com/intercom-api-reference/referen
 
 Create a new user with the provided $user_data.
 
-Will return a new instance of a Intercom::Resource::User or an instance of an Intercom::Resource::ErrorList
+Will return a new instance of a Intercom::Resource::User or an instance of an
+Intercom::Resource::ErrorList
 
 SEE ALSO:
     L<Create Users|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-user>
@@ -56,7 +57,7 @@ sub create {
     return $self->request_handler->post(URI->new('/users'), $user_data);
 }
 
-=head3 update (HasRef $user_data) -> Intercom::Resource::User|Intercom::Resource::ErrorList
+=head3 update (HashRef $user_data) -> Intercom::Resource::User|Intercom::Resource::ErrorList
 
     my $user = $client->users->update({
         email => 'test@test.com',
@@ -66,10 +67,11 @@ sub create {
         }];
     });
 
-Update an existing user with the provided $user_data. User will be matched by the value of the 'id', 'email'
-or 'user_id' fields in the data
+Update an existing user with the provided $user_data. User will be matched by
+the value of the 'id', 'email' or 'user_id' fields in the data
 
-Will return a new instance of a Intercom::Resource::User or an instance of an Intercom::Resource::ErrorList
+Will return a new instance of a Intercom::Resource::User or an instance of an
+Intercom::Resource::ErrorList
 
 SEE ALSO:
     L<Update Users|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-user>
@@ -102,9 +104,9 @@ sub update {
         }
     } while ($users = $users->page->next() )
 
-Retrieve a list of users. By default this will fetch the last 50 created users. The returned
-L<Intercom::Resource::UserList> object also contains a L<page object|Intercom::Resource::Page> which
-can be used to fetch more users in a paginated fashion
+Retrieve a list of users. By default this will fetch the last 50 created users.
+The returned L<Intercom::Resource::UserList> object also contains a L<page object|Intercom::Resource::Page>
+which can be used to fetch more users in a paginated fashion
 
 Available options are:
 
@@ -124,11 +126,13 @@ order - Direction to sort the users via the sort value (default desc)
 
 =item *
 
-sort - Field to sort on. Either created_at, last_request_at, signed_up_at or updated_at. (default created_at)
+sort - Field to sort on. Either created_at, last_request_at, signed_up_at or
+updated_at. (default created_at)
 
 =item *
 
-created_since - limit results to users that were created in that last number of days
+created_since - limit results to users that were created in that last number of
+days
 
 =back
 
@@ -151,7 +155,8 @@ sub list {
 
 Retrieve a user based on their primary intercom ID ($id)
 
-Returns either an instance of an Intercom::Resource::User or an instance of an Intercom::Resource::ErrorList
+Returns either an instance of an Intercom::Resource::User or an instance of an
+Intercom::Resource::ErrorList
 
 SEE ALSO: L<View a User|https://developers.intercom.com/intercom-api-reference/v1.1/reference#view-a-user>
 
@@ -178,7 +183,8 @@ sub get {
 Search for users as identified by an email ($params->{email})
 or custom user_id ($params->{user_id})
 
-Returns either an instance of an Intercom::Resource::UserList or an instance of an Intercom::Resource::ErrorList
+Returns either an instance of an Intercom::Resource::UserList or an instance of
+an Intercom::Resource::ErrorList
 
 SEE ALSO: L<Search Users|https://developers.intercom.com/intercom-api-reference/v1.1/reference#view-a-user>
 
@@ -208,12 +214,13 @@ sub search {
         }
     } while ($users = $users->page->next() )
 
-Efficiently retrieve a list of users. By default this will fetch the last 50 created users. The returned
-L<Intercom::Resource::UserList> object also contains a L<page object|Intercom::Resource::Page> which
-can be used to fetch more users in a paginated fashion
+Efficiently retrieve a list of users. By default this will fetch the last 50
+created users. The returned L<Intercom::Resource::UserList> object also contains a
+L<page object|Intercom::Resource::Page> which can be used to fetch more users
+in a paginated fashion
 
-NOTE: Scrolled user lists can only be paged to the next page. There is no ability to return
-to a previous page
+NOTE: Scrolled user lists can only be paged to the next page. There is no
+ability to return to a previous page
 
 SEE ALSO: L<Scroll users|https://developers.intercom.com/intercom-api-reference/v1.1/reference#iterating-over-all-users>
 
@@ -236,7 +243,8 @@ Archive a user based on their primary intercom ID ($params->{id})
 Alternatively archive a user as identified by their email ($params->{email})
 or custom user_id ($params->{user_id})
 
-Returns either an instance of an Intercom::Resource::User or an instance of an Intercom::Resource::ErrorList
+Returns either an instance of an Intercom::Resource::User or an instance of an
+Intercom::Resource::ErrorList
 
 SEE ALSO: L<Archive a User|https://developers.intercom.com/intercom-api-reference/v1.1/reference#archive-a-user>
 
