@@ -41,8 +41,8 @@ SEE ALSO: L<Companies|https://developers.intercom.com/intercom-api-reference/ref
 
 Create a new company with the provided $company_data.
 
-Will return a new instance of a Intercom::Resource::Company or an instance of
-an Intercom::Resource::ErrorList
+Will return a new instance of a L<Intercom::Resource::Company> or an instance of
+an L<Intercom::Resource::ErrorList>
 
 SEE ALSO: L<Create Companies|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-company>
 
@@ -64,8 +64,8 @@ sub create {
 Update an existing company with the provided $company_data. Company will be
 matched by the 'company_id' fields in the data
 
-Will return a new instance of a Intercom::Resource::Company or an instance of
-an Intercom::Resource::ErrorList
+Will return a new instance of a L<Intercom::Resource::Company> or an instance of
+an L<Intercom::Resource::ErrorList>
 
 SEE ALSO: L<Update Companies|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-company>
 
@@ -90,8 +90,8 @@ sub update {
 
 Retrieve a company based on their primary intercom ID ($id)
 
-Returns either an instance of an Intercom::Resource::Company or an instance of
-an Intercom::Resource::ErrorList
+Returns either an instance of an L<Intercom::Resource::Company> or an instance of
+an L<Intercom::Resource::ErrorList>
 
 SEE ALSO: L<View a Company|https://developers.intercom.com/intercom-api-reference/v1.1/reference#view-a-company>
 
@@ -117,8 +117,8 @@ sub get {
 Retrieve a company based on their company_id ($params->{company_id}), or the
 name ($params->{name})
 
-Returns either an instance of an Intercom::Resource::Company or an instance of
-an Intercom::Resource::ErrorList
+Returns either an instance of an L<Intercom::Resource::Company> or an instance of
+an L<Intercom::Resource::ErrorList>
 
 SEE ALSO: L<View a Company|https://developers.intercom.com/intercom-api-reference/v1.1/reference#view-a-company>
 
@@ -199,8 +199,8 @@ sub list {
 Search for companies as identified by a tag_id ($params->{tag_id}), or a
 segment_id ($params->{segment_id})
 
-Returns either an instance of an Intercom::Resource::CompanyList or an instance
-of an Intercom::Resource::ErrorList
+Returns either an instance of an L<Intercom::Resource::CompanyList> or an instance
+of an L<Intercom::Resource::ErrorList>
 
 SEE ALSO: L<Search by Tag|https://developers.intercom.com/intercom-api-reference/v1.1/reference#list-by-tag-or-segment>
 
@@ -228,7 +228,7 @@ sub search {
 
 =head3 scroll () -> Intercom::Resource::CompanyList|Intercom::Resource::ErrorList
 
-    my $companies = $client->companies->list({created_since => 365}) # all companies in the last year
+    my $companies = $client->companies->scroll(:) # all companies in the last year
 
     do {
         confess 'Error' if $companies->type eq 'ErrorList';
@@ -262,8 +262,8 @@ sub scroll {
 
 Retrieve a list of all users for a specific company_id
 
-Returns either an instance of an Intercom::Resource::UserList or an instance of
-an Intercom::Resource::ErrorList
+Returns either an instance of an L<Intercom::Resource::UserList> or an instance of
+an L<Intercom::Resource::ErrorList>
 
 =cut
 
@@ -293,7 +293,7 @@ sub _company_path {
     my $uri = URI->new('/companies');
     if (my $name = $params->{name}) {
         $uri->query_form(name => $name);
-        return $uri
+        return $uri;
     }
 
     if (my $company_id = $params->{company_id}) {

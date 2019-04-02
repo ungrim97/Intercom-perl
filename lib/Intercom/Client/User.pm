@@ -43,8 +43,8 @@ SEE ALSO: L<Users|https://developers.intercom.com/intercom-api-reference/referen
 
 Create a new user with the provided $user_data.
 
-Will return a new instance of a Intercom::Resource::User or an instance of an
-Intercom::Resource::ErrorList
+Will return a new instance of a L<Intercom::Resource::User> or an instance of an
+L<Intercom::Resource::ErrorList>
 
 SEE ALSO:
     L<Create Users|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-user>
@@ -70,8 +70,8 @@ sub create {
 Update an existing user with the provided $user_data. User will be matched by
 the value of the 'id', 'email' or 'user_id' fields in the data
 
-Will return a new instance of a Intercom::Resource::User or an instance of an
-Intercom::Resource::ErrorList
+Will return a new instance of a L<Intercom::Resource::User> or an instance of an
+L<Intercom::Resource::ErrorList>
 
 SEE ALSO:
     L<Update Users|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-user>
@@ -155,8 +155,8 @@ sub list {
 
 Retrieve a user based on their primary intercom ID ($id)
 
-Returns either an instance of an Intercom::Resource::User or an instance of an
-Intercom::Resource::ErrorList
+Returns either an instance of an L<Intercom::Resource::User> or an instance of an
+L<Intercom::Resource::ErrorList>
 
 SEE ALSO: L<View a User|https://developers.intercom.com/intercom-api-reference/v1.1/reference#view-a-user>
 
@@ -204,7 +204,7 @@ sub search {
 
 =head3 scroll () -> Intercom::Resource::UserList|Intercom::Resource::ErrorList
 
-    my $users = $client->users->list({created_since => 365}) # all users in the last year
+    my $users = $client->users->scroll() # all users
 
     do {
         confess 'Error' if $users->type eq 'ErrorList';
@@ -234,17 +234,17 @@ sub scroll {
 
 =head3 archive (HashRef $params) -> Intercom::Resource::User|Intercom::Resource::ErrorList
 
-    my $user = $client->users->get({id => 1});
-    my $user2 = $client->users->get({email => 'test@test.com'});
-    my $user3 = $client->users->get({user_id => '12333'});
+    my $user = $client->users->arhive({id => 1});
+    my $user2 = $client->users->archive({email => 'test@test.com'});
+    my $user3 = $client->users->archive({user_id => '12333'});
 
 Archive a user based on their primary intercom ID ($params->{id})
 
 Alternatively archive a user as identified by their email ($params->{email})
 or custom user_id ($params->{user_id})
 
-Returns either an instance of an Intercom::Resource::User or an instance of an
-Intercom::Resource::ErrorList
+Returns either an instance of an L<Intercom::Resource::User> or an instance of an
+L<Intercom::Resource::ErrorList>
 
 SEE ALSO: L<Archive a User|https://developers.intercom.com/intercom-api-reference/v1.1/reference#archive-a-user>
 
@@ -294,7 +294,7 @@ sub _user_path {
     my $uri = URI->new('/users');
     if (my $email = $params->{email}) {
         $uri->query_form(email => $email);
-        return $uri
+        return $uri;
     }
 
     if (my $user_id = $params->{user_id}) {
