@@ -6,7 +6,7 @@ use URI;
 use URI::QueryParam;
 use Intercom::Resource::ErrorList;
 
-# Request handler for the client. This differes from the
+# Request handler for the client. This differs from the
 # other SDK implementations to avoid circular references
 has request_handler => (is => 'ro', required => 1);
 
@@ -44,7 +44,7 @@ Create a new company with the provided $company_data.
 Will return a new instance of a Intercom::Resource::Company or an instance of
 an Intercom::Resource::ErrorList
 
-SEE ALSO: L<Create Companys|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-company>
+SEE ALSO: L<Create Companies|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-company>
 
 =cut
 
@@ -155,7 +155,7 @@ sub find {
         }
     } while ($companies = $companies->page->next())
 
-Retrieve a list of companies. by default this will fetch the last 50 created
+Retrieve a list of companies. By default this will fetch the last 50 created
 companies. The returned L<Intercom::Resource::CompanyList> object also contains
 a L<page object|Intercom::Resource::Page> which can be used to fetch more
 companies in a paginated fashion
@@ -238,7 +238,7 @@ sub search {
         }
     } while ($companies = $companies->page->next())
 
-Efficiently retrieve a list of companies. by default this will fetch the last
+Efficiently retrieve a list of companies. By default this will fetch the last
 50 created companies. The returned L<Intercom::Resource::CompanyList> object
 also contains a L<page object|Intercom::Resource::Page> which can be used to
 fetch more companies in a paginated fashion

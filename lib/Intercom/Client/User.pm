@@ -5,7 +5,7 @@ use Carp;
 use URI;
 use Intercom::Resource::ErrorList;
 
-# Request handler for the client. This differes from the
+# Request handler for the client. This differs from the
 # other SDK implementations to avoid circular references
 has request_handler => (is => 'ro', required => 1);
 
@@ -102,7 +102,7 @@ sub update {
         }
     } while ($users = $users->page->next() )
 
-Retrieve a list of users. by default this will fetch the last 50 created users. The returned
+Retrieve a list of users. By default this will fetch the last 50 created users. The returned
 L<Intercom::Resource::UserList> object also contains a L<page object|Intercom::Resource::Page> which
 can be used to fetch more users in a paginated fashion
 
@@ -208,7 +208,7 @@ sub search {
         }
     } while ($users = $users->page->next() )
 
-Efficiently retrieve a list of users. by default this will fetch the last 50 created users. The returned
+Efficiently retrieve a list of users. By default this will fetch the last 50 created users. The returned
 L<Intercom::Resource::UserList> object also contains a L<page object|Intercom::Resource::Page> which
 can be used to fetch more users in a paginated fashion
 
@@ -233,7 +233,7 @@ sub scroll {
 
 Archive a user based on their primary intercom ID ($params->{id})
 
-alternatively archive a user as identified by their email ($params->{email})
+Alternatively archive a user as identified by their email ($params->{email})
 or custom user_id ($params->{user_id})
 
 Returns either an instance of an Intercom::Resource::User or an instance of an Intercom::Resource::ErrorList
@@ -258,7 +258,7 @@ sub archive {
 
     my $return = $client->users->permanently_delete(1);
 
-Permanently remove a user as identified by thier Intercom user id ($id).
+Permanently remove a user as identified by their Intercom user id ($id).
 
 Returns either a hashref containing a single id key whose value is the
 id of the deleted user.
