@@ -92,7 +92,7 @@ subtest 'pagination' => sub {
 
     my $client = Intercom::Client->new({
         access_token => 'test',
-        ua         => $mock_ua
+        ua           => $mock_ua
     });
 
     my $userlist = $client->companies->users(6);
@@ -111,7 +111,7 @@ sub user_data {
             total_pages => 2,
         },
         users => [{
-            type                     => "user",
+            type                     => 'user',
             id                       => '530370b477ad7120001d',
             user_id                  => '25',
             email                    => 'wash@serenity.io',

@@ -178,7 +178,7 @@ order - Direction to sort the companies via the sort value (default desc)
 
 =back
 
-SEE ALSO: L<List Companiess|https://developers.intercom.com/intercom-api-reference/v1.1/reference#list-companies>
+SEE ALSO: L<List Companies|https://developers.intercom.com/intercom-api-reference/v1.1/reference#list-companies>
 
 =cut
 
@@ -228,7 +228,7 @@ sub search {
 
 =head3 scroll () -> Intercom::Resource::CompanyList|Intercom::Resource::ErrorList
 
-    my $companies = $client->companies->scroll(:) # all companies in the last year
+    my $companies = $client->companies->scroll() # all companies in the last year
 
     do {
         confess 'Error' if $companies->type eq 'ErrorList';

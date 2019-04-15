@@ -42,8 +42,8 @@ subtest 'update company' => sub {
         name              => 'Black Sun',
         plan              => 'plan1',
         size              => 85,
-        website           => "http://www.example.com",
-        industry          => "Manufacturing",
+        website           => 'http://www.example.com',
+        industry          => 'Manufacturing',
         monthly_spend     => 49,
         custom_attributes => {
             paid_subscriber => JSON::true,
@@ -90,44 +90,44 @@ sub company_data {
 	return {
         type                => 'company',
         id                  => '530370b477ad7120001e',
-        "name"              => "Blue Sun",
-        "plan"              => {
-            "type" => "plan",
-            "id"   => "123",
-            "name" => "plan1",
+        'name'              => 'Blue Sun',
+        'plan'              => {
+            'type' => 'plan',
+            'id'   => '123',
+            'name' => 'plan1',
         },
-        "company_id"        => "6",
-        "remote_created_at" => 1394531169,
-        "created_at"        => 1394533506,
-        "updated_at"        => 1396874658,
-        "size"              => 85,
-        "website"           => "http://www.example.com",
-        "industry"          => "Manufacturing",
-        "monthly_spend"     => 49,
-        "session_count"     => 26,
-        "user_count"        => 10,
-        "custom_attributes" => {
-            "paid_subscriber" => JSON::true,
-            "team_mates"      => 0
+        'company_id'        => '6',
+        'remote_created_at' => 1394531169,
+        'created_at'        => 1394533506,
+        'updated_at'        => 1396874658,
+        'size'              => 85,
+        'website'           => 'http://www.example.com',
+        'industry'          => 'Manufacturing',
+        'monthly_spend'     => 49,
+        'session_count'     => 26,
+        'user_count'        => 10,
+        'custom_attributes' => {
+            'paid_subscriber' => JSON::true,
+            'team_mates'      => 0
         },
-        "segments" => {
-            "segments" => [{
-                "id"         => "1234",
-                "name"       => "Segment Name",
-                "created_at" => 1394531169,
-                "updated_at" => 1394531169,
-                "type"       => "segment",
-                "count"      => 1,
+        'segments' => {
+            'segments' => [{
+                'id'         => '1234',
+                'name'       => 'Segment Name',
+                'created_at' => 1394531169,
+                'updated_at' => 1394531169,
+                'type'       => 'segment',
+                'count'      => 1,
             }],
-            "type" => "segment.list"
+            'type' => 'segment.list'
         },
-        "tags" => {
-            "tags" => [{
-                "id"   => "1234",
-                "name" => "tag name",
-                "type" => "tag",
+        'tags' => {
+            'tags' => [{
+                'id'   => '1234',
+                'name' => 'tag name',
+                'type' => 'tag',
             }],
-            "type" => "tag.list"
+            'type' => 'tag.list'
         }
     };
 }

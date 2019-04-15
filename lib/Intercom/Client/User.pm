@@ -234,7 +234,7 @@ sub scroll {
 
 =head3 archive (HashRef $params) -> Intercom::Resource::User|Intercom::Resource::ErrorList
 
-    my $user = $client->users->arhive({id => 1});
+    my $user  = $client->users->archive({id => 1});
     my $user2 = $client->users->archive({email => 'test@test.com'});
     my $user3 = $client->users->archive({user_id => '12333'});
 
