@@ -69,7 +69,7 @@ sub test_resource_generation {
         is($resource->segments->segments->[0]->type, $user_data->{segments}{segments}[0]{type}, 'SegmentList has a segment resource');
         is($resource->segments->segments->[0]->id, $user_data->{segments}{segments}[0]{id}, 'Segment->id has correct value');
 
-        # Segments
+        # Tag
         is($resource->tags->type, 'tag.list', 'User has a tags list resource');
         is($resource->tags->tags->[0]->type, $user_data->{tags}{tags}[0]{type}, 'TagList has a tag resource');
         is($resource->tags->tags->[0]->id, $user_data->{tags}{tags}[0]{id}, 'Tag->id has correct value');

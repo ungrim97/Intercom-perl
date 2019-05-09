@@ -12,6 +12,7 @@ use URI;
 
 use Intercom::Client::RequestHandler;
 use Intercom::Client::User;
+use Intercom::Client::Company;
 
 =head1 NAME
 
@@ -111,6 +112,34 @@ SEE ALSO:
 has _users => ( is => 'lazy', reader => 'users' );
 sub _build__users {
     return Intercom::Client::User->new({
+        request_handler => shift->_request_handler()
+    });
+}
+
+=head3 companies
+
+    # Create Company
+    my $response = $client->companies->create({
+        name       => 'Test Company',
+        company_id => '12345',
+    });
+
+    # Update a Company
+    my $response = $client->companies->update({
+        name       => 'Company',
+        company_id => '12345'
+    });
+
+Provides an object representation of the /companies/ API resource
+
+SEE ALSO:
+    L<Intercom::Client::Company>
+
+=cut
+
+has _companies => ( is => 'lazy', reader => 'companies' );
+sub _build__companies {
+    return Intercom::Client::Company->new({
         request_handler => shift->_request_handler()
     });
 }

@@ -71,6 +71,25 @@ Provides an object representation of the /users/ API resources
 SEE ALSO:
     [Intercom::Client::User](https://metacpan.org/pod/Intercom::Client::User)
 
+### companies
+
+    # Create Company
+    my $response = $client->companies->create({
+        name       => 'Test Company',
+        company_id => '12345',
+    });
+
+    # Update a Company
+    my $response = $client->companies->update({
+        name       => 'Company',
+        company_id => '12345'
+    });
+
+Provides an object representation of the /companies/ API resource
+
+SEE ALSO:
+    [Intercom::Client::Company](https://metacpan.org/pod/Intercom::Client::Company)
+
 # INSTALLATION
 
     cpanm Intercom::Client;

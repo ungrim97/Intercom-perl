@@ -387,6 +387,7 @@ sub _construct_scrollable_paginator {
         'tag.list'            => 'TagList',
         'tag'                 => 'Tag',
         'page'                => 'Page',
+        'plan'                => 'Plan',
     };
 
     sub _type_to_resource {

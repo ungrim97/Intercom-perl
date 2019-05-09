@@ -16,6 +16,8 @@ has monthly_spend     => ( is => 'ro' );
 has session_count     => ( is => 'ro' );
 has user_count        => ( is => 'ro' );
 has custom_attributes => ( is => 'ro' );
+has segments          => ( is => 'ro' );
+has tags              => ( is => 'ro' );
 
 sub type { return 'company' }
 

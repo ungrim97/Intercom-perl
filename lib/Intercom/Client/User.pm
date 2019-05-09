@@ -5,7 +5,7 @@ use Carp;
 use URI;
 use Intercom::Resource::ErrorList;
 
-# Request handler for the client. This differes from the
+# Request handler for the client. This differs from the
 # other SDK implementations to avoid circular references
 has request_handler => (is => 'ro', required => 1);
 
@@ -43,7 +43,8 @@ SEE ALSO: L<Users|https://developers.intercom.com/intercom-api-reference/referen
 
 Create a new user with the provided $user_data.
 
-Will return a new instance of a Intercom::Resource::User or an instance of an Intercom::Resource::ErrorList
+Will return a new instance of a L<Intercom::Resource::User> or an instance of an
+L<Intercom::Resource::ErrorList>
 
 SEE ALSO:
     L<Create Users|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-user>
@@ -56,7 +57,7 @@ sub create {
     return $self->request_handler->post(URI->new('/users'), $user_data);
 }
 
-=head3 update (HasRef $user_data) -> Intercom::Resource::User|Intercom::Resource::ErrorList
+=head3 update (HashRef $user_data) -> Intercom::Resource::User|Intercom::Resource::ErrorList
 
     my $user = $client->users->update({
         email => 'test@test.com',
@@ -66,10 +67,11 @@ sub create {
         }];
     });
 
-Update an existing user with the provided $user_data. User will be matched by the value of the 'id', 'email'
-or 'user_id' fields in the data
+Update an existing user with the provided $user_data. User will be matched by
+the value of the 'id', 'email' or 'user_id' fields in the data
 
-Will return a new instance of a Intercom::Resource::User or an instance of an Intercom::Resource::ErrorList
+Will return a new instance of a L<Intercom::Resource::User> or an instance of an
+L<Intercom::Resource::ErrorList>
 
 SEE ALSO:
     L<Update Users|https://developers.intercom.com/intercom-api-reference/reference#create-or-update-user>
@@ -102,9 +104,9 @@ sub update {
         }
     } while ($users = $users->page->next() )
 
-Retrieve a list of users. by default this will fetch the last 50 created users. The returned
-L<Intercom::Resource::UserList> object also contains a L<page object|Intercom::Resource::Page> which
-can be used to fetch more users in a paginated fashion
+Retrieve a list of users. By default this will fetch the last 50 created users.
+The returned L<Intercom::Resource::UserList> object also contains a L<page object|Intercom::Resource::Page>
+which can be used to fetch more users in a paginated fashion
 
 Available options are:
 
@@ -124,11 +126,13 @@ order - Direction to sort the users via the sort value (default desc)
 
 =item *
 
-sort - Field to sort on. Either created_at, last_request_at, signed_up_at or updated_at. (default created_at)
+sort - Field to sort on. Either created_at, last_request_at, signed_up_at or
+updated_at. (default created_at)
 
 =item *
 
-created_since - limit results to users that were created in that last number of days
+created_since - limit results to users that were created in that last number of
+days
 
 =back
 
@@ -151,7 +155,8 @@ sub list {
 
 Retrieve a user based on their primary intercom ID ($id)
 
-Returns either an instance of an Intercom::Resource::User or an instance of an Intercom::Resource::ErrorList
+Returns either an instance of an L<Intercom::Resource::User> or an instance of an
+L<Intercom::Resource::ErrorList>
 
 SEE ALSO: L<View a User|https://developers.intercom.com/intercom-api-reference/v1.1/reference#view-a-user>
 
@@ -178,7 +183,8 @@ sub get {
 Search for users as identified by an email ($params->{email})
 or custom user_id ($params->{user_id})
 
-Returns either an instance of an Intercom::Resource::UserList or an instance of an Intercom::Resource::ErrorList
+Returns either an instance of an Intercom::Resource::UserList or an instance of
+an Intercom::Resource::ErrorList
 
 SEE ALSO: L<Search Users|https://developers.intercom.com/intercom-api-reference/v1.1/reference#view-a-user>
 
@@ -198,7 +204,7 @@ sub search {
 
 =head3 scroll () -> Intercom::Resource::UserList|Intercom::Resource::ErrorList
 
-    my $users = $client->users->list({created_since => 365}) # all users in the last year
+    my $users = $client->users->scroll() # all users
 
     do {
         confess 'Error' if $users->type eq 'ErrorList';
@@ -208,12 +214,13 @@ sub search {
         }
     } while ($users = $users->page->next() )
 
-Efficiently retrieve a list of users. by default this will fetch the last 50 created users. The returned
-L<Intercom::Resource::UserList> object also contains a L<page object|Intercom::Resource::Page> which
-can be used to fetch more users in a paginated fashion
+Efficiently retrieve a list of users. By default this will fetch the last 50
+created users. The returned L<Intercom::Resource::UserList> object also contains a
+L<page object|Intercom::Resource::Page> which can be used to fetch more users
+in a paginated fashion
 
-NOTE: Scrolled user lists can only be paged to the next page. There is no ability to return
-to a previous page
+NOTE: Scrolled user lists can only be paged to the next page. There is no
+ability to return to a previous page
 
 SEE ALSO: L<Scroll users|https://developers.intercom.com/intercom-api-reference/v1.1/reference#iterating-over-all-users>
 
@@ -227,16 +234,17 @@ sub scroll {
 
 =head3 archive (HashRef $params) -> Intercom::Resource::User|Intercom::Resource::ErrorList
 
-    my $user = $client->users->get({id => 1});
-    my $user2 = $client->users->get({email => 'test@test.com'});
-    my $user3 = $client->users->get({user_id => '12333'});
+    my $user  = $client->users->archive({id => 1});
+    my $user2 = $client->users->archive({email => 'test@test.com'});
+    my $user3 = $client->users->archive({user_id => '12333'});
 
 Archive a user based on their primary intercom ID ($params->{id})
 
-alternatively archive a user as identified by their email ($params->{email})
+Alternatively archive a user as identified by their email ($params->{email})
 or custom user_id ($params->{user_id})
 
-Returns either an instance of an Intercom::Resource::User or an instance of an Intercom::Resource::ErrorList
+Returns either an instance of an L<Intercom::Resource::User> or an instance of an
+L<Intercom::Resource::ErrorList>
 
 SEE ALSO: L<Archive a User|https://developers.intercom.com/intercom-api-reference/v1.1/reference#archive-a-user>
 
@@ -258,7 +266,7 @@ sub archive {
 
     my $return = $client->users->permanently_delete(1);
 
-Permanently remove a user as identified by thier Intercom user id ($id).
+Permanently remove a user as identified by their Intercom user id ($id).
 
 Returns either a hashref containing a single id key whose value is the
 id of the deleted user.
@@ -286,7 +294,7 @@ sub _user_path {
     my $uri = URI->new('/users');
     if (my $email = $params->{email}) {
         $uri->query_form(email => $email);
-        return $uri
+        return $uri;
     }
 
     if (my $user_id = $params->{user_id}) {
