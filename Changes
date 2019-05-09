@@ -2,6 +2,8 @@ Revision history for Perl extension Intercom-Perl
 
 {{$NEXT}}
 
+    - Add support for Company Resource handler
+
 0.03 2019-03-25T11:31:31Z
 
     - Remove badges until release
