@@ -186,6 +186,9 @@ or custom user_id ($params->{user_id})
 Returns either an instance of an Intercom::Resource::UserList or an instance of
 an Intercom::Resource::ErrorList
 
+NOTE: If you search via custom user_id then this will return an instance of Intercom::Resource::User
+rather than an UserList
+
 SEE ALSO: L<Search Users|https://developers.intercom.com/intercom-api-reference/v1.1/reference#view-a-user>
 
 =cut
